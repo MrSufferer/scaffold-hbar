@@ -1,0 +1,449 @@
+{
+  "scope": "Baseline operability for issue 20; no live settlement or final eligibility claim",
+  "logRetention": "Raw stage logs retained in author /tmp/hbar-invoices-{local-delivery,public-candidate,public-default}; JSON captures commands and results, not raw logs.",
+  "runs": [
+    {
+      "source": "MrSufferer/scaffold-hbar",
+      "requestedRef": "HEAD",
+      "sourceCommit": "4eb973786434c1c80cf16576898ef0dd6a379704",
+      "mode": "local-candidate",
+      "node": "v24.10.0",
+      "npm": "11.6.1",
+      "cli": "0.4.1",
+      "date": "2026-10-04T16:16:43.477Z",
+      "status": "passed",
+      "stages": [
+        {
+          "name": "runtime",
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "export-source",
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "source-manifest-and-packaging",
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "published-generation",
+          "status": "passed",
+          "command": [
+            "npm",
+            "create",
+            "scaffold-hbar@latest",
+            "--",
+            "generated",
+            "--template",
+            "MrSufferer/scaffold-hbar",
+            "--frontend",
+            "nextjs-app",
+            "--solidity-framework",
+            "hardhat",
+            "--package-manager",
+            "npm",
+            "--network",
+            "testnet",
+            "--skip-install",
+            "--skip-hedera-skills",
+            "--yes"
+          ],
+          "error": ""
+        },
+        {
+          "name": "generated-artifacts",
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "generated-checks",
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "production-boot",
+          "status": "passed",
+          "command": [
+            "npm",
+            "run",
+            "start",
+            "--",
+            "--hostname",
+            "127.0.0.1",
+            "--port",
+            "52334"
+          ],
+          "error": ""
+        },
+        {
+          "name": "HTTP /",
+          "status": "passed"
+        },
+        {
+          "name": "HTTP /setup",
+          "status": "passed"
+        }
+      ],
+      "generatedChecks": [
+        {
+          "name": "install",
+          "command": "npm",
+          "args": [
+            "ci"
+          ],
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "format",
+          "command": "npm",
+          "args": [
+            "run",
+            "format"
+          ],
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "typecheck",
+          "command": "npm",
+          "args": [
+            "run",
+            "check-types"
+          ],
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "test",
+          "command": "npm",
+          "args": [
+            "test"
+          ],
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "lint",
+          "command": "npm",
+          "args": [
+            "run",
+            "lint"
+          ],
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "build",
+          "command": "npm",
+          "args": [
+            "run",
+            "build"
+          ],
+          "status": "passed",
+          "error": ""
+        }
+      ]
+    },
+    {
+      "source": "MrSufferer/scaffold-hbar",
+      "requestedRef": "4eb973786434c1c80cf16576898ef0dd6a379704",
+      "sourceCommit": "4eb973786434c1c80cf16576898ef0dd6a379704",
+      "mode": "public-candidate",
+      "node": "v24.10.0",
+      "npm": "11.6.1",
+      "cli": "0.4.1",
+      "date": "2026-10-04T16:17:41.307Z",
+      "status": "passed",
+      "stages": [
+        {
+          "name": "runtime",
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "export-source",
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "source-manifest-and-packaging",
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "published-generation",
+          "status": "passed",
+          "command": [
+            "npm",
+            "create",
+            "scaffold-hbar@latest",
+            "--",
+            "generated",
+            "--template",
+            "MrSufferer/scaffold-hbar#4eb973786434c1c80cf16576898ef0dd6a379704",
+            "--frontend",
+            "nextjs-app",
+            "--solidity-framework",
+            "hardhat",
+            "--package-manager",
+            "npm",
+            "--network",
+            "testnet",
+            "--skip-install",
+            "--skip-hedera-skills",
+            "--yes"
+          ],
+          "error": ""
+        },
+        {
+          "name": "generated-artifacts",
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "generated-checks",
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "production-boot",
+          "status": "passed",
+          "command": [
+            "npm",
+            "run",
+            "start",
+            "--",
+            "--hostname",
+            "127.0.0.1",
+            "--port",
+            "52392"
+          ],
+          "error": ""
+        },
+        {
+          "name": "HTTP /",
+          "status": "passed"
+        },
+        {
+          "name": "HTTP /setup",
+          "status": "passed"
+        }
+      ],
+      "generatedChecks": [
+        {
+          "name": "install",
+          "command": "npm",
+          "args": [
+            "ci"
+          ],
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "format",
+          "command": "npm",
+          "args": [
+            "run",
+            "format"
+          ],
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "typecheck",
+          "command": "npm",
+          "args": [
+            "run",
+            "check-types"
+          ],
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "test",
+          "command": "npm",
+          "args": [
+            "test"
+          ],
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "lint",
+          "command": "npm",
+          "args": [
+            "run",
+            "lint"
+          ],
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "build",
+          "command": "npm",
+          "args": [
+            "run",
+            "build"
+          ],
+          "status": "passed",
+          "error": ""
+        }
+      ]
+    },
+    {
+      "source": "MrSufferer/scaffold-hbar",
+      "requestedRef": "public-default",
+      "sourceCommit": "4eb973786434c1c80cf16576898ef0dd6a379704",
+      "mode": "public-default",
+      "node": "v24.10.0",
+      "npm": "11.6.1",
+      "cli": "0.4.1",
+      "date": "2026-10-04T16:18:02.757Z",
+      "status": "passed",
+      "stages": [
+        {
+          "name": "runtime",
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "export-source",
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "source-manifest-and-packaging",
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "published-generation",
+          "status": "passed",
+          "command": [
+            "npm",
+            "create",
+            "scaffold-hbar@latest",
+            "--",
+            "generated",
+            "--template",
+            "MrSufferer/scaffold-hbar",
+            "--frontend",
+            "nextjs-app",
+            "--solidity-framework",
+            "hardhat",
+            "--package-manager",
+            "npm",
+            "--network",
+            "testnet",
+            "--skip-install",
+            "--skip-hedera-skills",
+            "--yes"
+          ],
+          "error": ""
+        },
+        {
+          "name": "generated-artifacts",
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "generated-checks",
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "production-boot",
+          "status": "passed",
+          "command": [
+            "npm",
+            "run",
+            "start",
+            "--",
+            "--hostname",
+            "127.0.0.1",
+            "--port",
+            "52411"
+          ],
+          "error": ""
+        },
+        {
+          "name": "HTTP /",
+          "status": "passed"
+        },
+        {
+          "name": "HTTP /setup",
+          "status": "passed"
+        },
+        {
+          "name": "default-ref-stability",
+          "status": "passed",
+          "error": ""
+        }
+      ],
+      "generatedChecks": [
+        {
+          "name": "install",
+          "command": "npm",
+          "args": [
+            "ci"
+          ],
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "format",
+          "command": "npm",
+          "args": [
+            "run",
+            "format"
+          ],
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "typecheck",
+          "command": "npm",
+          "args": [
+            "run",
+            "check-types"
+          ],
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "test",
+          "command": "npm",
+          "args": [
+            "test"
+          ],
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "lint",
+          "command": "npm",
+          "args": [
+            "run",
+            "lint"
+          ],
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "build",
+          "command": "npm",
+          "args": [
+            "run",
+            "build"
+          ],
+          "status": "passed",
+          "error": ""
+        }
+      ]
+    }
+  ]
+}
