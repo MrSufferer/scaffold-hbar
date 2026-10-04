@@ -1,0 +1,43 @@
+{
+  "name": "hbar-invoices",
+  "description": "USD-reference HBAR invoice developer template for Hedera testnet",
+  "version": "0.1.0",
+  "create-scaffold-hbar": {
+    "capabilities": {
+      "frontend": [
+        "nextjs-app"
+      ],
+      "solidityFramework": [
+        "hardhat"
+      ],
+      "packageManager": [
+        "npm"
+      ]
+    },
+    "defaults": {
+      "frontend": "nextjs-app",
+      "solidityFramework": "hardhat",
+      "packageManager": "npm"
+    },
+    "requirements": {
+      "node": "24.10.0"
+    },
+    "outro": {
+      "sections": [
+        {
+          "title": "Start here",
+          "steps": [
+            {
+              "command": "{run:dev}",
+              "text": "Open /setup for Hedera testnet prerequisites. No invoice deployment is included in the baseline."
+            },
+            {
+              "command": "{run:verify:template}",
+              "text": "Run the clean external-template gate; see README for candidate-ref verification."
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

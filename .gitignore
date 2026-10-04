@@ -1,3 +1,15 @@
 .env
 .env.*
 !.env.example
+node_modules/
+.next/
+artifacts/
+cache/
+*.tsbuildinfo
+coverage/
+.brand-preview/
+*.bak
+
+/verification-report.json
+/generated-checks.json
+/*.log

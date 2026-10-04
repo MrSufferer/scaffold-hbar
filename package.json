@@ -1,0 +1,41 @@
+{
+  "name": "hbar-invoices",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "workspaces": [
+    "packages/hardhat",
+    "packages/nextjs"
+  ],
+  "packageManager": "npm@11.6.1",
+  "engines": {
+    "node": "24.10.0",
+    "npm": "11.6.1"
+  },
+  "scripts": {
+    "dev": "npm run dev -w @sh/nextjs",
+    "start": "npm run serve -w @sh/nextjs",
+    "build": "npm run compile -w @sh/hardhat && npm run build -w @sh/nextjs",
+    "check-types": "npm run check-types --workspaces && tsc -p scripts/tsconfig.json",
+    "lint": "eslint scripts && npm run lint --workspaces",
+    "test": "node --test scripts/test/*.test.mjs && npm run test --workspaces",
+    "validate:template": "node scripts/validate-template.mjs",
+    "verify:template": "node scripts/verify-template.mjs",
+    "hardhat:compile": "npm run compile -w @sh/hardhat",
+    "hardhat:test": "npm run test -w @sh/hardhat",
+    "sandcastle": "npx tsx .sandcastle/main.mts"
+  },
+  "devDependencies": {
+    "@ai-hero/sandcastle": "^0.12.0",
+    "@eslint/js": "9.39.1",
+    "@types/node": "24.10.0",
+    "zod": "^4.6.5",
+    "create-scaffold-hbar": "0.4.1",
+    "eslint": "9.39.1",
+    "globals": "16.5.0",
+    "typescript": "5.8.3"
+  },
+  "dependencies": {
+    "zod": "^4.6.5"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "name": "@sh/nextjs",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "serve": "next start",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "node --experimental-strip-types --test test/*.test.ts"
+  },
+  "dependencies": {
+    "next": "15.5.27",
+    "react": "19.2.3",
+    "react-dom": "19.2.3"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.2",
+    "@types/node": "24.10.0",
+    "typescript": "5.8.3",
+    "eslint-config-next": "15.5.27",
+    "@eslint/eslintrc": "3.3.1"
+  }
+}

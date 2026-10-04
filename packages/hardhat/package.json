@@ -1,0 +1,21 @@
+{
+  "name": "@sh/hardhat",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint ."
+  },
+  "devDependencies": {
+    "hardhat": "2.22.19",
+    "@nomicfoundation/hardhat-ethers": "3.0.8",
+    "ethers": "6.14.0",
+    "solc": "0.8.28",
+    "ts-node": "10.9.2",
+    "typescript": "5.8.3",
+    "@types/mocha": "10.0.10",
+    "typescript-eslint": "8.46.1"
+  }
+}
