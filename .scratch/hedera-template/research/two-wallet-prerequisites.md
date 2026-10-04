@@ -2,7 +2,7 @@
 
 Ticket: [Confirm two funded MetaMask testnet signers](https://github.com/MrSufferer/scaffold-hbar/issues/11).
 
-Status: incomplete; checked October 4, 2026, at approximately 15:44 UTC. No signed transaction was submitted.
+Status: resolved with human confirmation on October 4, 2026. Agent public checks ran at approximately 15:44–15:48 UTC. No signed transaction was submitted by the agent.
 
 ## Public observations
 
@@ -11,11 +11,12 @@ Status: incomplete; checked October 4, 2026, at approximately 15:44 UTC. No sign
 - The [previously supplied account](https://testnet.mirrornode.hedera.com/api/v1/accounts/0.0.4689032) still resolves to `0xed37fd0d6f0f69236e7472b36796e133d20ecc32`, is not deleted, and reports 690.83891887 HBAR. Its returned balance timestamp remains `1774285715.670371000` (March 23, 2026), so this does not establish current spendable funding. Merchant versus payer role is unconfirmed.
 - Hashio `eth_chainId` and `eth_getBalance` requests both returned HTTP 403. The [official network documentation](https://github.com/hashgraph/hedera-docs/blob/main/operators/json-rpc/index.mdx), fetched through Context7, identifies this endpoint and testnet chain ID 296; current chain identity could not be verified through a working relay.
 
-## Remaining prerequisites
+## Human-confirmed signer prerequisites
 
-- Two distinct public wallet identities and their merchant/payer roles.
-- Human confirmation of control and MetaMask connection for each wallet.
-- A usable testnet RPC, returning chain ID `0x128`, and current spendable balances for both wallets.
-- A chosen live invoice amount and transaction fee estimates from the implemented deployment/invoice operations. Neither exists in this planning-only checkout, so funding sufficiency is unverified.
+- Merchant: `0.0.4689032` / `0xed37fd0d6f0f69236e7472b36796e133d20ecc32`; mapped locally to `HEDERA_FIRST_PRIVATE_KEY`.
+- Payer: `0.0.10857996` / `0x00f5089ed5a3192ce8f8ceb6a9c72ae04cc5f794`; mapped locally to `HEDERA_SECOND_PRIVATE_KEY`.
+- At 15:48 UTC, the testnet Mirror Node confirmed both supplied account/address pairs and reported neither deleted. The payer reported 1000 HBAR at balance timestamp `1791123131.150358104`; the merchant's older Mirror Node balance remains as described above.
+- The human confirmed both wallets work in MetaMask and confirmed their balances, then confirmed the working wallet RPC as `https://testnet.hashio.io/api`, chain ID 296. This establishes the wallet-side connection and funding prerequisites by human confirmation. Agent-side Hashio requests remain HTTP 403; no successful agent RPC response is claimed.
+- Exact invoice funding sufficiency must be checked against the actual quote and transaction fees before the later live settlement. No invoice amount or fee estimate exists yet in this checkout. Human-confirmed funding resolves signer readiness, rather than proving a future payment or deployment.
 
 The root `.env.example` supplies configuration slots. Runtime `.env` files are ignored; credentials must remain local. No private key is required for these public checks. Recheck the feed and balances immediately before the later live journey.
