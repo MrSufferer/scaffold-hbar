@@ -24,3 +24,7 @@ Live-read progress (2026-10-04 10:17 UTC):
 - Hashio JSON-RPC continues to return HTTP 403 in this environment.
 
 This proves a live readable round, not a wallet transaction or successful payment. Ticket remains open pending wallet/funded-account availability and the chosen freshness policy. No secrets or signed transactions were used.
+
+## Recheck
+
+[Live prerequisite evidence](../research/live-invoice-prerequisites.md) records the 2026-10-04 10:23 UTC read, including on-chain decimals and description, exact round fields and Hashio HTTP 403. Wallet and funded-account availability are still pending; freshness policy belongs to the core workflow decision.
