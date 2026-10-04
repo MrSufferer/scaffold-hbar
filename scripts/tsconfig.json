@@ -9,10 +9,6 @@
     "moduleResolution": "NodeNext",
     "skipLibCheck": true
   },
-  "include": [
-    "*.mjs"
-  ],
-  "exclude": [
-    "test"
-  ]
+  "include": ["*.mjs"],
+  "exclude": ["test"]
 }

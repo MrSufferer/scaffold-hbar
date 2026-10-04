@@ -1,2 +1,5 @@
-import tseslint from 'typescript-eslint';
-export default [...tseslint.configs.recommended, { ignores: ['artifacts/**', 'cache/**'] }];
+import tseslint from "typescript-eslint";
+export default [
+  ...tseslint.configs.recommended,
+  { ignores: ["artifacts/**", "cache/**"] },
+];

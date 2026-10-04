@@ -14,7 +14,7 @@
   },
   "scripts": {
     "dev": "npm run dev -w @sh/nextjs",
-    "start": "npm run serve -w @sh/nextjs",
+    "start": "npm run serve -w @sh/nextjs --",
     "build": "npm run compile -w @sh/hardhat && npm run build -w @sh/nextjs",
     "check-types": "npm run check-types --workspaces && tsc -p scripts/tsconfig.json",
     "lint": "eslint scripts && npm run lint --workspaces",
@@ -23,19 +23,15 @@
     "verify:template": "node scripts/verify-template.mjs",
     "hardhat:compile": "npm run compile -w @sh/hardhat",
     "hardhat:test": "npm run test -w @sh/hardhat",
-    "sandcastle": "npx tsx .sandcastle/main.mts"
+    "format": "prettier --write packages scripts docs README.md AGENTS.md brand.md template.json package.json"
   },
   "devDependencies": {
-    "@ai-hero/sandcastle": "^0.12.0",
     "@eslint/js": "9.39.1",
     "@types/node": "24.10.0",
-    "zod": "^4.6.5",
     "create-scaffold-hbar": "0.4.1",
     "eslint": "9.39.1",
     "globals": "16.5.0",
-    "typescript": "5.8.3"
-  },
-  "dependencies": {
-    "zod": "^4.6.5"
+    "typescript": "5.8.3",
+    "prettier": "3.6.2"
   }
 }
