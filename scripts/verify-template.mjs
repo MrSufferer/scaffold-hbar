@@ -113,6 +113,7 @@ function checkGenerated() {
     "dev",
     "start",
     "verify:template",
+    "format",
   ]) {
     assert(
       typeof pkg.scripts[key] === "string" && pkg.scripts[key].trim(),
@@ -315,6 +316,7 @@ try {
       metadata: { ...metadata, sourceManifestRequired: false },
       commands: [
         { name: "install", command: "npm", args: ["ci"] },
+        { name: "format", command: "npm", args: ["run", "format"] },
         { name: "typecheck", command: "npm", args: ["run", "check-types"] },
         { name: "test", command: "npm", args: ["test"] },
         { name: "lint", command: "npm", args: ["run", "lint"] },

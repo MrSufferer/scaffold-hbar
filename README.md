@@ -14,6 +14,7 @@ Prerequisites: Git with user.name and user.email configured, the pinned Node/npm
 npm create scaffold-hbar@latest -- hbar-invoices --template MrSufferer/scaffold-hbar --frontend nextjs-app --solidity-framework hardhat --package-manager npm --network testnet --skip-install --skip-hedera-skills --yes
 cd hbar-invoices
 npm ci
+npm run format
 npm run check-types
 npm test
 npm run lint
@@ -41,7 +42,7 @@ Run from an installed source or generated project:
 npm run verify:template -- --report /tmp/hbar-invoices-public/report.json
 ```
 
-The default gate exercises the public **default-ref** external-template path with the published `@latest` CLI. It exports the public source revision, independently validates its manifest against the schema extracted from the locked npm CLI release, audits packaging, generates into a clean temporary directory, installs with `npm ci`, runs typechecks/tests/lint/build, boots production and checks `/` and `/setup` for expected configuration guidance. Author dependencies, build output and dotenv files are never the input. Temporary projects and process groups are cleaned up; stage logs and JSON reports remain next to the chosen report.
+The default gate exercises the public **default-ref** external-template path with the published `@latest` CLI. It exports the public source revision, independently validates its manifest against the schema extracted from the locked npm CLI release, audits packaging, generates into a clean temporary directory, installs with `npm ci`, runs formatting/typechecks/tests/lint/build, boots production and checks `/` and `/setup` for expected configuration guidance. Author dependencies, build output and dotenv files are never the input. Temporary projects and process groups are cleaned up; stage logs and JSON reports remain next to the chosen report.
 
 For a published candidate branch or commit:
 

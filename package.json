@@ -23,7 +23,7 @@
     "verify:template": "node scripts/verify-template.mjs",
     "hardhat:compile": "npm run compile -w @sh/hardhat",
     "hardhat:test": "npm run test -w @sh/hardhat",
-    "format": "prettier --write packages scripts docs README.md AGENTS.md brand.md template.json package.json"
+    "format": "prettier --write packages scripts docs README.md AGENTS.md brand.md package.json"
   },
   "devDependencies": {
     "@eslint/js": "9.39.1",
