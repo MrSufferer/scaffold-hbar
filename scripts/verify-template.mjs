@@ -146,6 +146,21 @@ async function boot() {
       socket.close(() => resolve(address.port));
     });
   });
+  const bootStage = metadata.stages.find(
+    (result) => result.name === "production-boot",
+  );
+  if (bootStage)
+    bootStage.command = [
+      "npm",
+      "run",
+      "start",
+      "--",
+      "--hostname",
+      "127.0.0.1",
+      "--port",
+      String(port),
+    ];
+  save();
   server = spawn(
     "npm",
     ["run", "start", "--", "--hostname", "127.0.0.1", "--port", String(port)],
