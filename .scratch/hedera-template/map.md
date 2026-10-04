@@ -21,6 +21,8 @@ An implementation-ready specification for one useful, maintainable scaffold-hbar
 - [Compare payments and oracle template opportunities](issues/02-payments-oracles.md): select Chainlink-based USD-reference HBAR invoice checkout, subject to a live-feed feasibility gate; comparison and budget are linked from the ticket.
 - [Compare DeFi and bridge template opportunities](issues/03-defi-bridges.md): SaucerSwap readiness is the runner-up; reject multi-chain operations within eight hours.
 
+- [Verify live invoice integration prerequisites](https://github.com/MrSufferer/scaffold-hbar/issues/7): live feed and MetaMask/account availability established; dated balance and RPC limitations remain implementation checks.
+
 ## Not yet specified
 
 - Extension seams for downstream developers after the core invoice behavior is settled.

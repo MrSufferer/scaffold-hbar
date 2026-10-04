@@ -31,10 +31,14 @@ A separate `eth_chainId` POST to `https://testnet.hashio.io/api` returned HTTP 4
 
 ## Wallet and funded account
 
-Not verified. This checkout contains planning artifacts only, with no generated application, package manifest, wallet configuration or account fixture. The user was asked for the wallet name and public testnet account ID only. No credentials were read or requested. Once supplied, check the account through the public testnet Mirror Node account endpoint and verify the wallet is supported by the chosen generated scaffold. Positive balance alone does not prove control, gas sufficiency or payment success.
+The user confirmed MetaMask and supplied public account `0.0.4689032` / EVM address `0xed37fd0d6f0f69236e7472b36796e133d20ecc32`. At 2026-10-04 10:25:46 UTC, GET requests to the [testnet account endpoint](https://testnet.mirrornode.hedera.com/api/v1/accounts/0.0.4689032) using each identifier independently resolved to that same account, with `deleted: false`.
+
+Reported balance: `69083891887` tinybar = **690.83891887 HBAR**. Returned balance timestamp: `1774285715.670371000` (2026-03-23). This is dated public balance evidence, not a current spendable-balance guarantee. Recheck through a working wallet RPC before deploying or paying.
+
+[Hedera's MetaMask setup documentation](https://docs.tokenization-studio.hedera.com/ats/getting-started/quick-start/) documents direct MetaMask support on Hedera Testnet, chain ID 296. Current MetaMask documentation was checked through Context7 `/metamask/metamask-docs`. Wallet availability is user-confirmed; browser connection, selected network, account control and generated-scaffold integration were not exercised.
 
 ## Outcome
 
-The live-feed read prerequisite passes. Wallet/account availability remains pending, and the ticket stays open. No contract was deployed and no payment or signed transaction was sent. This evidence does not resolve the core workflow ticket or authorize invoice implementation.
+The investigation is complete: a valid live feed read and matching public testnet account were observed, a dated positive balance was reported, and the user confirmed a supported wallet. Proceed to the core workflow decision, where an explicit freshness policy must be settled before invoice implementation. The dated balance and Hashio HTTP 403 are retained as limitations requiring recheck during implementation. No contract was deployed and no payment or signed transaction was sent.
 
 Current API return semantics were checked with Context7 (`/smartcontractkit/documentation`) against the [Chainlink API reference](https://docs.chain.link/data-feeds/api-reference). Chainlink now marks answeredInRound deprecated; it is recorded here to satisfy the ticket's round evidence rather than presented as sufficient freshness validation.

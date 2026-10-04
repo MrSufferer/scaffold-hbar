@@ -3,7 +3,7 @@
 Parent: [Choose a durable Hedera developer template](../map.md)
 Labels: wayfinder:task
 Type: task
-Status: claimed
+Status: resolved
 Assignee: MrSufferer
 Blocked by: 01, 02, 03
 
@@ -27,4 +27,8 @@ This proves a live readable round, not a wallet transaction or successful paymen
 
 ## Recheck
 
-[Live prerequisite evidence](../research/live-invoice-prerequisites.md) records the 2026-10-04 10:23 UTC read, including on-chain decimals and description, exact round fields and Hashio HTTP 403. Wallet and funded-account availability are still pending; freshness policy belongs to the core workflow decision.
+[Live prerequisite evidence](../research/live-invoice-prerequisites.md) records the 2026-10-04 10:23 UTC read, including on-chain decimals and description, exact round fields and Hashio HTTP 403. At that recheck, wallet and funded-account availability were pending; the resolution below records subsequent evidence. Freshness policy belongs to the core workflow decision.
+
+## Resolution
+
+User confirmed MetaMask. Both supplied public identifiers resolve to the same testnet account with a positive reported balance; the balance snapshot is dated and requires a fresh check before spending. See [prerequisite evidence](../research/live-invoice-prerequisites.md) for exact observations and limitations. Investigation complete; workflow freshness policy and signed-payment proof remain later work.
