@@ -1,0 +1,50 @@
+{
+  "map": {
+    "url": "https://github.com/MrSufferer/scaffold-hbar/issues/1",
+    "number": 1
+  },
+  "tickets": {
+    "01": {
+      "number": 2,
+      "id": 5698348347,
+      "url": "https://github.com/MrSufferer/scaffold-hbar/issues/2",
+      "title": "Establish the template contract and existing coverage",
+      "file": ".scratch/hedera-template/issues/01-template-contract.md"
+    },
+    "02": {
+      "number": 3,
+      "id": 5698349205,
+      "url": "https://github.com/MrSufferer/scaffold-hbar/issues/3",
+      "title": "Compare payments and oracle template opportunities",
+      "file": ".scratch/hedera-template/issues/02-payments-oracles.md"
+    },
+    "03": {
+      "number": 4,
+      "id": 5698349954,
+      "url": "https://github.com/MrSufferer/scaffold-hbar/issues/4",
+      "title": "Compare DeFi and bridge template opportunities",
+      "file": ".scratch/hedera-template/issues/03-defi-bridges.md"
+    },
+    "04": {
+      "number": 5,
+      "id": 5698350702,
+      "url": "https://github.com/MrSufferer/scaffold-hbar/issues/5",
+      "title": "Define the core workflow and failure model",
+      "file": ".scratch/hedera-template/issues/04-scope-and-failure-model.md"
+    },
+    "05": {
+      "number": 6,
+      "id": 5698351181,
+      "url": "https://github.com/MrSufferer/scaffold-hbar/issues/6",
+      "title": "Define acceptance evidence and maintenance boundaries",
+      "file": ".scratch/hedera-template/issues/05-acceptance-and-maintenance.md"
+    },
+    "06": {
+      "number": 7,
+      "id": 5698351763,
+      "url": "https://github.com/MrSufferer/scaffold-hbar/issues/7",
+      "title": "Verify live invoice integration prerequisites",
+      "file": ".scratch/hedera-template/issues/06-live-feed-feasibility.md"
+    }
+  }
+}

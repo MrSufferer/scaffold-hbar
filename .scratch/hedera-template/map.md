@@ -12,7 +12,7 @@ An implementation-ready specification for one useful, maintainable scaffold-hbar
 - User delegated research and use-case selection to the agent; no preferred use case.
 - Build budget: eight hours, one builder, the user as sole maintainer. Longer-term usefulness remains the destination, not a multi-week build.
 - Planning only. Consult wayfinder, domain-modeling and relevant Hedera skills; use research for external facts.
-- Local Markdown tracker. Research is captured on research branches; findings and ticket answers are linked here.
+- Canonical tracker: [GitHub decision map](https://github.com/MrSufferer/scaffold-hbar/issues/1). Local Markdown is a snapshot. Research is captured on research branches; findings and ticket answers are linked here.
 - Bounty source: https://hedera.com/blog/scaffold-hbar-template-bounty/
 
 ## Decisions so far
