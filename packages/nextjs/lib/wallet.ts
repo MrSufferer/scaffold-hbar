@@ -131,7 +131,7 @@ export function walletMessage(error: unknown) {
   if (item.code === 4001 || item.code === "ACTION_REJECTED")
     return "Request rejected in MetaMask. No automatic retry was made.";
   if (item.code === "INSUFFICIENT_FUNDS")
-    return "Insufficient test HBAR for network fees. Fund the merchant account and check the transaction outcome.";
+    return "Insufficient test HBAR for the transaction and network fees. Fund the connected account and check the transaction outcome.";
   return (
     item.shortMessage ||
     item.message ||

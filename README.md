@@ -1,6 +1,6 @@
 # HBAR Invoices
 
-An MIT external scaffold-hbar template for USD-reference invoices paid in HBAR on Hedera testnet. The template includes immutable single-merchant invoice creation, wallet-free inspection and a repeatable clean-generation gate. MetaMask deployment, creation, merchant cancellation and contract-derived quote review are available; payment follows in a later slice. No live testnet deployment or settlement is claimed by local checks.
+An MIT external scaffold-hbar template for USD-reference invoices paid in HBAR on Hedera testnet. The template includes immutable single-merchant invoice creation, wallet-free inspection and a repeatable clean-generation gate. MetaMask deployment, creation, merchant cancellation, contract-derived quote review and exact approved settlement with verified receipts are available. No live testnet deployment or settlement is claimed by local checks.
 
 ## Supported stack
 
@@ -32,7 +32,7 @@ The default public testnet RPC is https://testnet.hashio.io/api; availability is
 
 After deploying at `/deploy`, copy [the frontend example](packages/nextjs/.env.example) to `packages/nextjs/.env.local` privately and supply public configuration. Restart/rebuild Next.js after changing NEXT_PUBLIC values. Never put keys, credential-bearing RPC URLs or secrets in NEXT_PUBLIC settings. Runtime dotenv files are ignored and excluded from source-template packaging, even when empty. The existing root example is for private maintainer prerequisites and is not needed by this baseline.
 
-A future real checkout needs separate merchant and payer MetaMask accounts connected to Hedera testnet, test HBAR funding, an available RPC, the deployed invoice contract and a verified HBAR/USD feed. Local operability checks use a disposable EVM and simulated wallet. The `/deploy` view uses MetaMask without a private deployment key in the workspace. Follow [the creation, inspection and cancellation walkthrough](docs/invoice-creation.md) for deployment identity, public configuration, `/merchant`, invoice links, cancellation and unknown-outcome recovery. Follow [exact approval and settlement](docs/invoice-payment.md) for payer fee review, native value units and confirmed receipts.
+Real testnet checkout needs separate merchant and payer MetaMask accounts connected to Hedera testnet, test HBAR funding, an available RPC, the deployed invoice contract and a verified HBAR/USD feed. Local operability checks use a disposable EVM and simulated wallet. The `/deploy` view uses MetaMask without a private deployment key in the workspace. Follow [the creation, inspection and cancellation walkthrough](docs/invoice-creation.md) for deployment identity, public configuration, `/merchant`, invoice links, cancellation and unknown-outcome recovery. Follow [exact approval and settlement](docs/invoice-payment.md) for payer fee review, native value units and confirmed receipts.
 
 ## Reusable template gate
 

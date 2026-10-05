@@ -1,6 +1,6 @@
 # Create, inspect and cancel an invoice
 
-This slice delivers a single-merchant creation/read/cancellation/quote contract and a MetaMask developer path on Hedera testnet (chain ID 296). It cannot accept payments. Cancellation requires this revision’s newly deployed contract; older creation/read deployments do not gain the method, and their invoices do not migrate. Adding payment rules will require another fresh deployment. The fixed feed supplies contract-derived USD-reference quotes; read [quote review](invoice-quotes.md) before changing feed validation, conversion or deadline rules.
+This revision delivers single-merchant creation, inspection, cancellation, quotes and exact approved settlement through MetaMask on Hedera testnet (chain ID 296). Deploy this revision’s contract to use settlement; older deployments do not gain new methods, and their invoices do not migrate. The fixed feed supplies contract-derived USD-reference quotes; read [quote review](invoice-quotes.md) before changing feed validation, conversion or deadline rules, and [payment and receipt verification](invoice-payment.md) for settlement. Local checks do not establish a live testnet deployment or payment.
 
 ## Generate and check
 
