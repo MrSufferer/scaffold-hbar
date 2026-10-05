@@ -48,6 +48,8 @@ export default function PayInvoice({
   const [now, setNow] = useState<number | null>(null);
   const inFlight = useRef(false);
   const walletRevision = useRef(0);
+  const currentView = useRef(view);
+  currentView.current = view;
   const [failedView, setFailedView] = useState<InvoiceView | null>(null);
   useEffect(() => {
     const injected = (window as Window & { ethereum?: MetaMask }).ethereum;
@@ -166,11 +168,20 @@ export default function PayInvoice({
     inFlight.current = true;
     setBusy(true);
     setMessage("");
+    const revision = walletRevision.current;
     let submitted = false;
     let submittedHash = false;
     try {
       finish(
         await submitPayment(wallet(), prepared, (value) => {
+          if (
+            value.transaction === null &&
+            (revision !== walletRevision.current ||
+              currentView.current !== view)
+          )
+            throw new Error(
+              "Payment review changed before submission. Refresh the invoice, estimate fees and approve a new quote.",
+            );
           save(value);
           submitted = true;
           submittedHash = value.transaction !== null;

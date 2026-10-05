@@ -675,6 +675,68 @@ try {
   assert.equal(paymentSubmissions, 0);
   rejectPayment = false;
   await page.getByRole("button", { name: "Refresh invoice" }).click();
+  // Insufficient funds never opens approval; funding does not itself retry payment.
+  insufficientBalance = true;
+  await page
+    .getByRole("button", { name: "Estimate payment network fee" })
+    .click();
+  await expect(paymentStatus).toContainText("Insufficient test HBAR");
+  await expect(
+    page.getByRole("button", {
+      name: "Approve exact quote and pay with MetaMask",
+    }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "Estimate payment network fee" }),
+  ).toBeDisabled();
+  insufficientBalance = false;
+  await page.getByRole("button", { name: "Refresh invoice" }).click();
+  await page
+    .getByRole("button", { name: "Estimate payment network fee" })
+    .click();
+  await expect(
+    page.getByRole("button", {
+      name: "Approve exact quote and pay with MetaMask",
+    }),
+  ).toBeVisible();
+  selected = accounts[0];
+  await page.evaluate(() =>
+    /** @type {Window & {invoiceWalletEvent: (event: string) => void}} */ (
+      /** @type {unknown} */ (window)
+    ).invoiceWalletEvent("accountsChanged"),
+  );
+  await expect(paymentStatus).toContainText(
+    "Wallet account or network changed",
+  );
+  await expect(
+    page.getByRole("button", {
+      name: "Approve exact quote and pay with MetaMask",
+    }),
+  ).toHaveCount(0);
+  selected = accounts[1];
+  await page.getByRole("button", { name: "Refresh invoice" }).click();
+  await page
+    .getByRole("button", { name: "Estimate payment network fee" })
+    .click();
+  await expect(
+    page.getByRole("button", {
+      name: "Approve exact quote and pay with MetaMask",
+    }),
+  ).toBeVisible();
+  wrongChain = true;
+  await page.evaluate(() =>
+    /** @type {Window & {invoiceWalletEvent: (event: string) => void}} */ (
+      /** @type {unknown} */ (window)
+    ).invoiceWalletEvent("chainChanged"),
+  );
+  await expect(
+    page.getByRole("button", {
+      name: "Approve exact quote and pay with MetaMask",
+    }),
+  ).toHaveCount(0);
+  wrongChain = false;
+  assert.equal(paymentSubmissions, 0);
+  await page.getByRole("button", { name: "Refresh invoice" }).click();
   // Same numeric price but a new round requires a new review, with no wallet submission.
   await page
     .getByRole("button", { name: "Estimate payment network fee" })
