@@ -75,10 +75,9 @@ export default function Setup() {
             public values only.
           </li>
           <li>
-            Deploy the creation/read contract at /deploy, verify its merchant
-            and feed identity, then set the public contract address. Open
-            /merchant to create and share an invoice. Payment follows in later
-            slices.
+            Deploy the invoice contract at /deploy, verify its merchant and feed
+            identity, then set the public contract address. Open /merchant to
+            create and share an invoice. Payment follows in later slices.
           </li>
         </ol>
         <p>

@@ -134,6 +134,26 @@ function checkGenerated() {
     for (const marker of ["verify:template", "24.10.0", "testnet"])
       assert(text.includes(marker), `Generated ${guide} lost ${marker}`);
   }
+  const walkthrough = readFileSync(
+    path.join(projectDir, "docs/invoice-creation.md"),
+    "utf8",
+  );
+  for (const marker of [
+    "Cancel with MetaMask",
+    "Check cancellation transaction",
+    "InvoiceAlreadyCancelled",
+    "Cancelled",
+  ])
+    assert(
+      walkthrough.includes(marker),
+      `Generated cancellation guide lost ${marker}`,
+    );
+  assert(
+    readFileSync(path.join(projectDir, "AGENTS.md"), "utf8").includes(
+      "pending cancellation",
+    ),
+    "Generated agent guide lost cancellation recovery",
+  );
 }
 
 async function boot() {

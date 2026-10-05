@@ -348,6 +348,59 @@ try {
     "0x59bc155eb6c6c415fe43255af66ecf0523c92b4a",
   );
   assert.equal(view.usdCents, "125");
+  // Merchant cancellation uses the original locator even if public configuration changes.
+  await page.goto(base + locator);
+  selected = accounts[1];
+  await page.getByRole("button", { name: "Cancel with MetaMask" }).click();
+  await expect(page.getByRole("status")).toContainText(
+    "Only the deployed merchant",
+  );
+  selected = accounts[0];
+  wrongChain = true;
+  await page.getByRole("button", { name: "Cancel with MetaMask" }).click();
+  await expect(page.getByRole("status")).toContainText("Switch MetaMask");
+  wrongChain = false;
+  rejectRequest = true;
+  await page.getByRole("button", { name: "Cancel with MetaMask" }).click();
+  await expect(page.getByRole("status")).toContainText("Request rejected");
+  rejectRequest = false;
+  holdReceipts = true;
+  await page.getByRole("button", { name: "Cancel with MetaMask" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Cancellation outcome pending" }),
+  ).toBeVisible();
+  await page.reload();
+  await expect(
+    page.getByRole("heading", { name: "Cancellation outcome pending" }),
+  ).toBeVisible();
+  holdReceipts = false;
+  await page
+    .getByRole("button", { name: "Check cancellation transaction" })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "Cancelled", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Cancel with MetaMask" }),
+  ).toHaveCount(0);
+  await publicPage.getByRole("button", { name: "Refresh invoice" }).click();
+  await expect(
+    publicPage.getByRole("heading", { name: "Cancelled", exact: true }),
+  ).toBeVisible();
+  await publicPage.reload();
+  await expect(
+    publicPage.getByRole("heading", { name: "Cancelled", exact: true }),
+  ).toBeVisible();
+  await expect(
+    publicPage.getByText(/This invoice is no longer payable/),
+  ).toBeVisible();
+  await expect(
+    publicPage.getByRole("button", { name: /pay|checkout/i }),
+  ).toHaveCount(0);
+  assert.equal(
+    (await (await fetch(`${base}/api${locator}`)).json()).state,
+    "Cancelled",
+  );
   await rpc("eth_sendTransaction", [
     {
       from: accounts[0],
@@ -378,12 +431,39 @@ try {
   await expect(
     publicPage.getByRole("heading", { name: "Invalid invoice link" }),
   ).toBeVisible();
+  await rpc("eth_sendTransaction", [
+    {
+      from: accounts[0],
+      to: contract,
+      data: new Interface(artifact.abi).encodeFunctionData("createInvoice", [
+        125n,
+        BigInt(view.expiresAt),
+      ]),
+    },
+  ]);
+  const expiryLocator = `/invoice/296/${contract}/3`;
+  await rpc("evm_setNextBlockTimestamp", [Number(view.expiresAt) - 1]);
+  await rpc("evm_mine");
+  await publicPage.goto(base + expiryLocator);
+  await expect(
+    publicPage.getByRole("heading", { name: "Open", exact: true }),
+  ).toBeVisible();
   await rpc("evm_setNextBlockTimestamp", [Number(view.expiresAt)]);
   await rpc("evm_mine");
-  await publicPage.goto(base + locator);
+  await publicPage.goto(base + expiryLocator);
   await expect(
     publicPage.getByRole("heading", { name: "Expired", exact: true }),
   ).toBeVisible();
+  await expect(
+    publicPage.getByText(/This invoice is no longer payable/),
+  ).toBeVisible();
+  await expect(
+    publicPage.getByRole("button", { name: /pay|checkout/i }),
+  ).toHaveCount(0);
+  assert.equal(
+    (await (await fetch(`${base}/api${locator}`)).json()).state,
+    "Cancelled",
+  );
   // A failed read must clear the previously displayed state.
   tlsProxy.closeAllConnections();
   await new Promise((resolve) => tlsProxy.close(resolve));
@@ -400,7 +480,7 @@ try {
     publicPage.getByRole("heading", { name: "Expired", exact: true }),
   ).toHaveCount(0);
   console.log(
-    "PASS local creation/read journey: browser deployment, merchant authorization, wrong network, wallet rejection, pending reload, wallet-free read, nonexistent invoice, expiry, failed-read clearing. Simulated wallet/local EVM only; no testnet deployment or payment evidence.",
+    "PASS local creation/read/cancellation journey: browser deployment, merchant authorization, wrong network, wallet rejection, pending reload, cancellation authorization/rejection/pending reload, wallet-free cancelled refresh/reload, nonexistent invoice, before/at expiry, failed-read clearing. Simulated wallet/local EVM only; no testnet deployment or payment evidence.",
   );
 } finally {
   await cleanup();

@@ -92,3 +92,60 @@ describe("Invoice creation and inspection", () => {
     );
   });
 });
+
+describe("Invoice cancellation", () => {
+  it("allows only the merchant and preserves terms while exposing a final cancelled state", async () => {
+    const [merchant, stranger, feed] = await ethers.getSigners();
+    const invoices = await (
+      await ethers.getContractFactory("Invoices")
+    ).deploy(merchant.address, feed.address);
+    const expiry = (await ethers.provider.getBlock("latest"))!.timestamp + 60;
+    await (await invoices.getFunction("createInvoice")(125, expiry)).wait();
+    await assert.rejects(
+      invoices.connect(stranger).getFunction("cancelInvoice")(1),
+      /MerchantOnly/,
+    );
+    await assert.rejects(
+      invoices.getFunction("cancelInvoice")(0),
+      /InvoiceNotFound/,
+    );
+    await assert.rejects(
+      invoices.getFunction("cancelInvoice")(2),
+      /InvoiceNotFound/,
+    );
+    const receipt = await (
+      await invoices.getFunction("cancelInvoice")(1)
+    ).wait();
+    const event = invoices.interface.parseLog(receipt.logs[0]);
+    assert.equal(event?.name, "InvoiceCancelled");
+    assert.equal(event?.args.invoiceId, 1n);
+    assert.deepEqual(Array.from(await invoices.getFunction("getInvoice")(1)), [
+      125n,
+      BigInt(expiry),
+      2n,
+    ]);
+    await assert.rejects(
+      invoices.getFunction("cancelInvoice")(1),
+      /InvoiceAlreadyCancelled/,
+    );
+    await ethers.provider.send("evm_setNextBlockTimestamp", [expiry]);
+    await ethers.provider.send("evm_mine", []);
+    assert.equal((await invoices.getFunction("getInvoice")(1))[2], 2n);
+  });
+  it("allows cancellation of an expired unpaid invoice; expiry is still derived without a transaction", async () => {
+    const [merchant, feed] = await ethers.getSigners();
+    const invoices = await (
+      await ethers.getContractFactory("Invoices")
+    ).deploy(merchant.address, feed.address);
+    const expiry = (await ethers.provider.getBlock("latest"))!.timestamp + 60;
+    await (await invoices.getFunction("createInvoice")(1, expiry)).wait();
+    await ethers.provider.send("evm_setNextBlockTimestamp", [expiry - 1]);
+    await ethers.provider.send("evm_mine", []);
+    assert.equal((await invoices.getFunction("getInvoice")(1))[2], 0n);
+    await ethers.provider.send("evm_setNextBlockTimestamp", [expiry]);
+    await ethers.provider.send("evm_mine", []);
+    assert.equal((await invoices.getFunction("getInvoice")(1))[2], 1n);
+    await (await invoices.getFunction("cancelInvoice")(1)).wait();
+    assert.equal((await invoices.getFunction("getInvoice")(1))[2], 2n);
+  });
+});
