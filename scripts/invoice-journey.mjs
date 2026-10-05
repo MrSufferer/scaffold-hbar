@@ -256,6 +256,8 @@ try {
   let paymentSubmissions = 0;
   let insufficientBalance = false;
   let revertPayment = false;
+  let invalidateDuringEstimate = false;
+  let invalidateDuringValidation = false;
   /** @type {{amount: string, round: string}[]} */
   const sentPayments = [];
   const invoiceAbi = new Interface(artifact.abi);
@@ -265,6 +267,18 @@ try {
       /** @type {{method: string, params?: unknown[]}} */ { method, params },
     ) => {
       try {
+        if (
+          method === "eth_call" &&
+          invalidateDuringValidation &&
+          /** @type {{data?: string}[]} */ (params)?.[0]?.data?.startsWith(
+            invoiceAbi.getFunction("validateQuote").selector,
+          )
+        ) {
+          selected = accounts[0];
+          await walletEvent("accountsChanged");
+          selected = accounts[1];
+          await walletEvent("accountsChanged");
+        }
         if (method === "eth_chainId" && wrongChain) return "0x1";
         if (method === "eth_getBalance" && insufficientBalance) return "0x0";
         if (method === "eth_requestAccounts" && rejectRequest)
@@ -294,6 +308,8 @@ try {
               BigInt(request.value || "0"),
               approved.amountTinybars * 10000000000n,
             );
+            if (method === "eth_estimateGas" && invalidateDuringEstimate)
+              await walletEvent("accountsChanged");
             if (method === "eth_sendTransaction") {
               if (rejectPayment) return { walletRejected: true };
               ++paymentSubmissions;
@@ -393,6 +409,15 @@ try {
     });
   });
   const page = await context.newPage();
+  async function walletEvent(/** @type {string} */ event) {
+    await page.evaluate(
+      (name) =>
+        /** @type {Window & {invoiceWalletEvent: (event: string) => void}} */ (
+          /** @type {unknown} */ (window)
+        ).invoiceWalletEvent(name),
+      event,
+    );
+  }
   await page.goto(`${base}/deploy`);
   await page.getByRole("button", { name: "Deploy with MetaMask" }).click();
   await expect(page.getByRole("status")).toContainText("Deployment confirmed", {
@@ -737,6 +762,44 @@ try {
   wrongChain = false;
   assert.equal(paymentSubmissions, 0);
   await page.getByRole("button", { name: "Refresh invoice" }).click();
+  invalidateDuringEstimate = true;
+  await page
+    .getByRole("button", { name: "Estimate payment network fee" })
+    .click();
+  await expect(paymentStatus).toContainText(
+    "Wallet account or network changed",
+  );
+  await expect(
+    page.getByRole("button", { name: "Estimate payment network fee" }),
+  ).toBeDisabled();
+  await expect(
+    page.getByRole("button", {
+      name: "Approve exact quote and pay with MetaMask",
+    }),
+  ).toHaveCount(0);
+  invalidateDuringEstimate = false;
+  await page.getByRole("button", { name: "Refresh invoice" }).click();
+  await page
+    .getByRole("button", { name: "Estimate payment network fee" })
+    .click();
+  await expect(
+    page.getByRole("button", {
+      name: "Approve exact quote and pay with MetaMask",
+    }),
+  ).toBeVisible();
+  invalidateDuringValidation = true;
+  await page
+    .getByRole("button", { name: "Approve exact quote and pay with MetaMask" })
+    .click();
+  await expect(paymentStatus).toContainText(
+    "Payment review changed before submission",
+  );
+  await expect(
+    page.getByRole("heading", { name: "Payment outcome pending" }),
+  ).toHaveCount(0);
+  assert.equal(paymentSubmissions, 0);
+  invalidateDuringValidation = false;
+  await page.getByRole("button", { name: "Refresh invoice" }).click();
   // Same numeric price but a new round requires a new review, with no wallet submission.
   await page
     .getByRole("button", { name: "Estimate payment network fee" })
@@ -1041,7 +1104,7 @@ try {
     publicPage.getByRole("heading", { name: "Expired", exact: true }),
   ).toHaveCount(0);
   console.log(
-    "PASS local creation/read/cancellation/quote/settlement journey: browser deployment, authorization, wrong network, wallet rejection, pending reload, cancellation, wallet-free exact/fractional quote review, fee estimation, explicit approval, changed-round rejection, exact wire-to-EVM test conversion, atomic recipient balance delta, confirmed receipt and reload recovery, settled payer state, expiry and failed-read clearing. Simulated wallet/local EVM/test relay only; no testnet deployment or payment evidence.",
+    "PASS local creation/read/cancellation/quote/settlement journey: browser deployment, authorization, wrong network, wallet rejection, pending reload, cancellation, wallet-free exact/fractional quote review, fee estimation, insufficient funds, account/network event invalidation including in-flight estimation and validation, explicit fresh approval, confirmed revert and retry, changed-round rejection, exact wire-to-EVM test conversion, atomic recipient balance delta, confirmed receipt and reload recovery, settled payer state, expiry and failed-read clearing. Simulated wallet/local EVM/test relay only; no testnet deployment or payment evidence.",
   );
 } finally {
   await cleanup();
