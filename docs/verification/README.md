@@ -73,3 +73,13 @@ The journey verifies explicit approval and separate fees, changed-round rejectio
 The current public default-ref check failed at generated-artifacts because `a3b1cfd` lacks the settlement guide; later stages did not run. The public settlement candidate is `implement/invoice-settlement`. This result does not establish settlement availability on the default branch.
 
 The browser uses a simulated wallet, local EVM and explicit test relay conversion from wire weibars to EVM tinybars. Real MetaMask Hedera deployment, oracle health, transport conversion and settlement remain unverified. The record includes each command, source ref, timestamp and per-stage result.
+
+## October 5, 2026 interrupted payment recovery
+
+[Recorded results](2026-10-05-recovery.json) cover `a0e1acddb1cc91636bbe5347aa13dcd059136eb9` for [Recover an interrupted payment without duplicating it](https://github.com/MrSufferer/scaffold-hbar/issues/17). Local and public candidate generation passed every stage using published CLI 0.4.1, Node 24.10.0 and npm 11.6.1. Both review axes found no remaining defects.
+
+Clean generated projects passed install, formatting, typechecks, full contract/frontend/gate tests, lint, production build/boot, core route responses and browser recovery. The browser checks reload with withheld receipts, original payer recovery after account switch, confirmed reverts followed by authoritative reads and fresh review, unavailable recovery reads retaining pending state, hashless intents and true third-party settlement without fabricating a receipt. Wallet account/network changes invalidate approval; a final submission guard blocks changed reviews before persisting intent. Generated developer and agent recovery guides are retained and checked.
+
+The public default-ref run resolved `a3b1cfd2746f64c7bac976ca1532d336aebd3df7` and failed at generated-artifacts because the guide lacks payment failure actions. Later stages did not run. Candidate success does not establish default-branch availability or final release eligibility. The published candidate branch is `implement/payment-recovery`.
+
+These results establish source eligibility and generated operability using simulated MetaMask, a disposable local EVM and explicit test conversion. Real Hedera deployment, oracle health and settlement remain unverified. Reports include source commits, dates, resolved tool versions, exact commands and per-stage results.
