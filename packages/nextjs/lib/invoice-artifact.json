@@ -1,0 +1,182 @@
+{
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "merchant_",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "feed_",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "InvalidAmount",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "InvalidExpiry",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "InvalidIdentity",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "invoiceId",
+          "type": "uint256"
+        }
+      ],
+      "name": "InvoiceNotFound",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "MerchantOnly",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "invoiceId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "usdCents",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint64",
+          "name": "expiresAt",
+          "type": "uint64"
+        }
+      ],
+      "name": "InvoiceCreated",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "usdCents",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint64",
+          "name": "expiresAt",
+          "type": "uint64"
+        }
+      ],
+      "name": "createInvoice",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "invoiceId",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "feed",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "invoiceId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getInvoice",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "usdCents",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint64",
+          "name": "expiresAt",
+          "type": "uint64"
+        },
+        {
+          "internalType": "enum Invoices.State",
+          "name": "state",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "merchant",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "nextInvoiceId",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "recipient",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x60e0604052600160005534801561001557600080fd5b5060405161050c38038061050c833981016040819052610034916100a7565b6001600160a01b038216158061005157506001600160a01b038116155b1561006f5760405163178423dd60e01b815260040160405180910390fd5b6001600160a01b03918216608081905260a0521660c0526100da565b80516001600160a01b03811681146100a257600080fd5b919050565b600080604083850312156100ba57600080fd5b6100c38361008b565b91506100d16020840161008b565b90509250929050565b60805160a05160c0516103fe61010e6000396000606c0152600060d201526000818161011001526101e001526103fe6000f3fe608060405234801561001057600080fd5b50600436106100625760003560e01c806337a7b7d8146100675780633a23cc0a146100ab57806366d003ac146100cd5780636ff2a953146100f4578063a5ff76511461010b578063f017fe8314610132575b600080fd5b61008e7f000000000000000000000000000000000000000000000000000000000000000081565b6040516001600160a01b0390911681526020015b60405180910390f35b6100be6100b9366004610308565b610145565b6040516100a293929190610321565b61008e7f000000000000000000000000000000000000000000000000000000000000000081565b6100fd60005481565b6040519081526020016100a2565b61008e7f000000000000000000000000000000000000000000000000000000000000000081565b6100fd610140366004610364565b6101d3565b60008181526001602081815260408084208151808301909252805480835293015467ffffffffffffffff1691810191909152829182919082036101a257604051630bc917e760e31b81526004810186905260240160405180910390fd5b8051602082015167ffffffffffffffff81164210156101c25760006101c5565b60015b935093509350509193909250565b6000336001600160a01b037f0000000000000000000000000000000000000000000000000000000000000000161461021e57604051630d411cdd60e21b815260040160405180910390fd5b8260000361023f5760405163162908e360e11b815260040160405180910390fd5b428267ffffffffffffffff16116102685760405162d36c8560e81b815260040160405180910390fd5b600080549080610277836103a1565b9091555060408051808201825285815267ffffffffffffffff858116602080840182815260008781526001808452908790209551865590519401805467ffffffffffffffff1916949093169390931790915582518781529182015291925082917fd0cc6b86fc710fda32c9e4996ce2b239cb8b54270ad5283185dbef1b6f7c16af910160405180910390a292915050565b60006020828403121561031a57600080fd5b5035919050565b83815267ffffffffffffffff83166020820152606081016002831061035657634e487b7160e01b600052602160045260246000fd5b826040830152949350505050565b6000806040838503121561037757600080fd5b82359150602083013567ffffffffffffffff8116811461039657600080fd5b809150509250929050565b6000600182016103c157634e487b7160e01b600052601160045260246000fd5b506001019056fea2646970667358221220b4d6b7f9b0d31f446ad185b284499fbb51aa4cb214b7b6416766b5432d40b86464736f6c634300081c0033"
+}

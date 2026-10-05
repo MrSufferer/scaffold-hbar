@@ -75,9 +75,10 @@ export default function Setup() {
             public values only.
           </li>
           <li>
-            Implement and deploy the invoice contract, verify its identity and
-            feed, then set the public contract address. This baseline includes
-            only a local operability probe.
+            Deploy the creation/read contract at /deploy, verify its merchant
+            and feed identity, then set the public contract address. Open
+            /merchant to create and share an invoice. Payment follows in later
+            slices.
           </li>
         </ol>
         <p>

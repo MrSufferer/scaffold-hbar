@@ -176,7 +176,13 @@ async function boot() {
     spawnError = error;
   });
   const deadline = Date.now() + 60_000;
-  for (const route of ["/", "/setup"]) {
+  for (const route of [
+    "/",
+    "/setup",
+    "/merchant",
+    "/deploy",
+    "/invoice/296/0x1111111111111111111111111111111111111111/1",
+  ]) {
     let healthy = false;
     while (Date.now() < deadline) {
       if (spawnError) throw spawnError;
@@ -195,7 +201,11 @@ async function boot() {
             "Hedera testnet",
             "Configuration needed",
           ]) {
-            assert(html.includes(marker), `${route} missing ${marker}`);
+            if (
+              marker !== "Configuration needed" ||
+              ["/", "/setup", "/merchant"].includes(route)
+            )
+              assert(html.includes(marker), `${route} missing ${marker}`);
           }
           if (route === "/setup")
             for (const marker of [
@@ -340,6 +350,25 @@ try {
     });
   });
   await stage("production-boot", boot);
+  await stage(
+    "generated-invoice-journey",
+    async () => {
+      await runCommand(
+        "npm",
+        ["exec", "playwright", "--", "install", "chromium"],
+        {
+          cwd: projectDir,
+          logFile: path.join(reportDir, "browser-install.log"),
+        },
+      );
+      await runCommand("npm", ["run", "test:journey"], {
+        cwd: projectDir,
+        env: { ...cleanEnvironment(), INVOICE_JOURNEY_LOG_DIR: reportDir },
+        logFile: path.join(reportDir, "invoice-journey.log"),
+      });
+    },
+    ["npm exec playwright -- install chromium", "npm run test:journey"],
+  );
   if (!values.local && !values.ref)
     await stage("default-ref-stability", async () => {
       const current = await (

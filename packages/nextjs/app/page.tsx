@@ -16,11 +16,11 @@ export default function Home() {
           invoice to payment.
         </h1>
         <p className="lead">
-          Build USD-reference invoices paid in HBAR. Start with a reproducible
-          workspace, then add the contract, quote and payment journey.
+          Build USD-reference invoices paid in HBAR. Create an invoice and share
+          its public link. Quote and payment support follow in later slices.
         </p>
-        <Link href="/setup" className="button">
-          Review your setup <span aria-hidden="true">↗</span>
+        <Link href="/merchant" className="button">
+          Create an invoice <span aria-hidden="true">↗</span>
         </Link>
       </section>
       <section className="overview" aria-labelledby="workspace-heading">

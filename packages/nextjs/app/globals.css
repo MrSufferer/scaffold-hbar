@@ -272,3 +272,59 @@ footer {
     padding: var(--space-6);
   }
 }
+
+button,
+input {
+  font: inherit;
+}
+button {
+  border: 0;
+  cursor: pointer;
+}
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+button:focus-visible,
+input:focus-visible {
+  outline: 3px solid var(--ring);
+  outline-offset: 3px;
+}
+.button.secondary {
+  color: var(--foreground);
+  background: var(--secondary);
+  border: 1px solid var(--border);
+}
+form {
+  max-width: 36rem;
+  display: grid;
+  gap: var(--space-3);
+}
+form label {
+  font-weight: 600;
+}
+input {
+  min-height: 44px;
+  padding: var(--space-3);
+  color: var(--foreground);
+  background: var(--background);
+  border: 1px solid var(--input);
+  border-radius: var(--radius);
+  width: 100%;
+}
+.amount {
+  font-family: var(--font-mono), monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: 1.5rem;
+}
+main > .panel {
+  margin-bottom: var(--space-12);
+}
+@media (max-width: 450px) {
+  .header {
+    flex-wrap: wrap;
+  }
+  nav {
+    gap: var(--space-4);
+  }
+}

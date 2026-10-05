@@ -1,6 +1,6 @@
 # HBAR Invoices
 
-An MIT external scaffold-hbar template for USD-reference invoices paid in HBAR on Hedera testnet. This first slice delivers a runnable development foundation and a repeatable clean-generation gate. Invoice creation, quoting, payment and wallet integration follow in subsequent slices; no deployment or live settlement is claimed here.
+An MIT external scaffold-hbar template for USD-reference invoices paid in HBAR on Hedera testnet. The template includes immutable single-merchant invoice creation, wallet-free inspection and a repeatable clean-generation gate. MetaMask deployment and creation are available; quoting, cancellation and payment follow in later slices. No live testnet deployment or settlement is claimed by local checks.
 
 ## Supported stack
 
@@ -30,9 +30,9 @@ The CLI intentionally removes `template.json` from the generated project. Do not
 
 The default public testnet RPC is https://testnet.hashio.io/api; availability is not guaranteed. `/setup` displays the selected endpoint, chain ID 296 and the public contract address when configured. An address is **unverified configuration**, not proof of code, merchant identity, feed validity or deployment. Local Hardhat uses chain ID 31337 and proves neither Hedera value-unit semantics nor live settlement.
 
-After invoice deployment exists, copy [the frontend example](packages/nextjs/.env.example) to `packages/nextjs/.env.local` privately and supply public configuration. Restart/rebuild Next.js after changing NEXT_PUBLIC values. Never put keys, credential-bearing RPC URLs or secrets in NEXT_PUBLIC settings. Runtime dotenv files are ignored and excluded from source-template packaging, even when empty. The existing root example is for private maintainer prerequisites and is not needed by this baseline.
+After deploying at `/deploy`, copy [the frontend example](packages/nextjs/.env.example) to `packages/nextjs/.env.local` privately and supply public configuration. Restart/rebuild Next.js after changing NEXT_PUBLIC values. Never put keys, credential-bearing RPC URLs or secrets in NEXT_PUBLIC settings. Runtime dotenv files are ignored and excluded from source-template packaging, even when empty. The existing root example is for private maintainer prerequisites and is not needed by this baseline.
 
-A future real checkout needs separate merchant and payer MetaMask accounts connected to Hedera testnet, test HBAR funding, an available RPC, the deployed invoice contract and a verified HBAR/USD feed. The local operability probe is not an invoice contract. No deploy command or default private key is provided in this slice.
+A future real checkout needs separate merchant and payer MetaMask accounts connected to Hedera testnet, test HBAR funding, an available RPC, the deployed invoice contract and a verified HBAR/USD feed. The local operability probe is not an invoice contract. The `/deploy` view uses MetaMask without a private deployment key in the workspace. Follow [the creation and inspection walkthrough](docs/invoice-creation.md) for deployment identity, public configuration, `/merchant`, invoice links and unknown-outcome recovery.
 
 ## Reusable template gate
 
@@ -42,7 +42,7 @@ Run from an installed source or generated project:
 npm run verify:template -- --report /tmp/hbar-invoices-public/report.json
 ```
 
-The default gate exercises the public **default-ref** external-template path with the published `@latest` CLI. It exports the public source revision, independently validates its manifest against the schema extracted from the locked npm CLI release, audits packaging, generates into a clean temporary directory, installs with `npm ci`, runs formatting/typechecks/tests/lint/build, boots production and checks `/` and `/setup` for expected configuration guidance. Author dependencies, build output and dotenv files are never the input. Temporary projects and process groups are cleaned up; stage logs and JSON reports remain next to the chosen report.
+The default gate exercises the public **default-ref** external-template path with the published `@latest` CLI. It exports the public source revision, independently validates its manifest against the schema extracted from the locked npm CLI release, audits packaging, generates into a clean temporary directory, installs with `npm ci`, runs formatting/typechecks/tests/lint/build, boots production and checks landing, setup, merchant, deployment and invoice routes. It also installs Chromium and exercises the actual deployment → creation → wallet-free inspection path with a disposable local EVM and simulated wallet. This browser gate requires OpenSSL and Chromium system libraries; see [the walkthrough](docs/invoice-creation.md#verify-the-generated-journey). Author dependencies, build output and dotenv files are never the input. Temporary projects and process groups are cleaned up; stage logs and JSON reports remain next to the chosen report.
 
 For a published candidate branch or commit:
 

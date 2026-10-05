@@ -13,3 +13,6 @@ coverage/
 /verification-report.json
 /generated-checks.json
 /*.log
+
+/packages/hardhat/invoice-probe.config.cjs
+/output/playwright/

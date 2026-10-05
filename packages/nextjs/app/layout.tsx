@@ -32,6 +32,7 @@ export default function RootLayout({
             <span className="brand-dot" aria-hidden="true" />
           </Link>
           <nav aria-label="Main navigation">
+            <Link href="/merchant">Merchant</Link>
             <Link href="/setup">Setup guide</Link>
             <span className="network">Hedera testnet</span>
           </nav>

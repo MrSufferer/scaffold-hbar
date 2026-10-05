@@ -6,9 +6,11 @@ Implement the selected ticket within its scope. Read [README.md](README.md) for 
 
 Use the scripts in package.json for typechecks, tests, lint and build. After a committed change, run `npm run verify:template -- --local --ref HEAD --report /tmp/hbar-invoices-local/report.json`. After publication, run `npm run verify:template -- --ref YOUR_PUBLIC_REF --report /tmp/hbar-invoices-candidate/report.json`. Final operability evidence also requires `npm run verify:template` against the public default ref. Read per-stage logs when a gate fails; skipped work cannot pass.
 
-Validate template.json in the source. Generated projects intentionally omit it. Keep source eligibility, generated operability and real MetaMask testnet settlement evidence separate. The first slice contains only a local probe; supplied configuration must never be called a verified deployment or payment.
+Validate template.json in the source. Generated projects intentionally omit it. Keep source eligibility, generated operability and real MetaMask testnet settlement evidence separate. The creation/read browser journey uses a disposable local EVM and simulated wallet; supplied configuration must never be called a verified deployment or payment.
 
 ## Boundaries
+
+For deployment, merchant creation, invoice inspection or changes to these flows, read [the walkthrough and contract boundary](docs/invoice-creation.md). The frontend deployment artifact must match compiled Solidity; regenerate it with `npm run contract:export` after a contract change. Invoice links retain their original chain/contract/ID, and creation hashes remain pending until a confirmed event identifies the invoice. This deployment cannot accept payment or cancellation.
 
 Local Hardhat checks need no secrets, funded wallets, oracle timing or live RPC. Native-value conversion and settlement need later Hedera tests. Public frontend configuration contains public values only; private deployment settings belong in ignored local files. Source packaging must exclude all runtime dotenv files, even empty ones, along with dependencies and build artifacts.
 

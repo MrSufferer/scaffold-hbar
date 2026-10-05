@@ -29,7 +29,7 @@ export function setupReadiness(env: Record<string, string | undefined>) {
       candidate && !validContract
         ? "Replace NEXT_PUBLIC_INVOICE_CONTRACT with a nonzero EVM address."
         : !validContract
-          ? "Set NEXT_PUBLIC_INVOICE_CONTRACT after deploying the invoice contract in a later slice."
+          ? "Set NEXT_PUBLIC_INVOICE_CONTRACT after deploying the invoice contract at /deploy."
           : "Verify contract code, merchant identity, oracle data and RPC availability before connecting a funded wallet.",
   };
 }
