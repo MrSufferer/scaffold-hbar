@@ -63,3 +63,13 @@ The contract change requires a fresh deployment; existing creation/read invoices
 The journey covers exact and fractional quotes, expiry and consensus-window refresh, failed/invalid/stale feed clearing, recovery and cancellation. Network fees remain separately unavailable by user-approved scope; settlement must estimate them before approval. The separately recorded public default gate passed for the earlier cancellation revision and does not establish quote availability on main.
 
 These checks use a simulated wallet and disposable local EVM. They provide source eligibility and generated operability evidence, without claiming real Hedera deployment, oracle health, payment or settlement. The evidence-only revision is verified separately at delivery.
+
+## October 5, 2026 exact approved settlement
+
+[Recorded results](2026-10-05-settlement.json) cover settlement commit `c8ee35f` for [Settle one exact approved quote and show a receipt](https://github.com/MrSufferer/scaffold-hbar/issues/15). Local-candidate and public-candidate runs passed with published CLI 0.4.1, Node 24.10.0 and npm 11.6.1. Clean generated projects passed install, formatting, typechecks, 35 tests, lint, production build/boot, core routes and the production browser journey. Both review axes have no remaining findings after capability and funding guidance corrections.
+
+The journey verifies explicit approval and separate fees, changed-round rejection, exact wire value, one recipient balance delta, confirmed receipt evidence, pending reload recovery and settled invoice behavior. Contract tests cover one-tinybar under/overpayment, modified approvals, feed/deadline rejection, both cancellation orderings, failed delivery rollback, reentrancy and replay rejection. Packaging exclusions and the generated settlement guides passed.
+
+The current public default-ref check failed at generated-artifacts because `a3b1cfd` lacks the settlement guide; later stages did not run. The public settlement candidate is `implement/invoice-settlement`. This result does not establish settlement availability on the default branch.
+
+The browser uses a simulated wallet, local EVM and explicit test relay conversion from wire weibars to EVM tinybars. Real MetaMask Hedera deployment, oracle health, transport conversion and settlement remain unverified. The record includes each command, source ref, timestamp and per-stage result.
