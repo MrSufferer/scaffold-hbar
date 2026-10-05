@@ -14,7 +14,12 @@ import {
   type InvoiceIdentity,
   type InvoiceQuote,
 } from "./invoice.ts";
-import { merchantSigner, walletMessage, type MetaMask } from "./wallet.ts";
+import {
+  isTestnetChain,
+  merchantSigner,
+  walletMessage,
+  type MetaMask,
+} from "./wallet.ts";
 
 export const WEIBARS_PER_TINYBAR = 10000000000n;
 export type PreparedPayment = InvoiceIdentity & {
@@ -347,7 +352,7 @@ export async function submitPayment(
         gasLimit: BigInt(original.gasLimit),
         gasPrice: BigInt(original.gasPrice),
       });
-    if ((await wallet.request({ method: "eth_chainId" })) !== "0x128")
+    if (!isTestnetChain(await wallet.request({ method: "eth_chainId" })))
       throw new Error("Switch MetaMask to Hedera testnet (296).");
     const accounts = (await wallet.request({
       method: "eth_accounts",

@@ -279,7 +279,8 @@ try {
           selected = accounts[1];
           await walletEvent("accountsChanged");
         }
-        if (method === "eth_chainId" && wrongChain) return "0x1";
+        // Exercise wallet encodings that include a leading zero throughout the journey.
+        if (method === "eth_chainId") return wrongChain ? "0x1" : "0x0128";
         if (method === "eth_getBalance" && insufficientBalance) return "0x0";
         if (method === "eth_requestAccounts" && rejectRequest)
           return { walletRejected: true };

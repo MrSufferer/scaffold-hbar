@@ -17,11 +17,18 @@ export type MetaMask = Eip1193Provider & {
   removeListener?: (event: string, listener: () => void) => void;
 };
 export type CreationAttempt = InvoiceIdentity & { transaction: string };
+export function isTestnetChain(chain: unknown): boolean {
+  return (
+    typeof chain === "string" &&
+    /^0x[0-9a-f]+$/i.test(chain) &&
+    BigInt(chain) === BigInt(TESTNET_CHAIN)
+  );
+}
 export async function merchantSigner(wallet: MetaMask, expected?: string) {
   if (!wallet.isMetaMask)
     throw new Error("Use MetaMask for this supported wallet path.");
   const chain = await wallet.request({ method: "eth_chainId" });
-  if (chain !== "0x128")
+  if (!isTestnetChain(chain))
     throw new Error(
       "Switch MetaMask to Hedera testnet (296) before continuing.",
     );
@@ -53,7 +60,7 @@ export async function submitCreation(
         "Only the deployed merchant account can administer invoices.",
       );
     // Recheck context immediately before the wallet prompt. The contract enforces the signer.
-    if ((await wallet.request({ method: "eth_chainId" })) !== "0x128")
+    if (!isTestnetChain(await wallet.request({ method: "eth_chainId" })))
       throw new Error("Switch MetaMask to Hedera testnet (296).");
     const tx = await contract.getFunction("createInvoice")(usdCents, expiresAt);
     const attempt = {
@@ -152,7 +159,7 @@ export async function submitCancellation(
   const { provider, signer } = await merchantSigner(wallet, merchant);
   try {
     const contract = new Contract(identity.contract, artifact.abi, signer);
-    if ((await wallet.request({ method: "eth_chainId" })) !== "0x128")
+    if (!isTestnetChain(await wallet.request({ method: "eth_chainId" })))
       throw new Error("Switch MetaMask to Hedera testnet (296).");
     const tx = await contract.getFunction("cancelInvoice")(identity.invoiceId);
     onSubmitted(tx.hash);

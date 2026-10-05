@@ -48,18 +48,52 @@ test("whole-cent input and exact USD display never round an invoice", () => {
   );
 });
 test("wrong wallet network is rejected before requesting account authorization", async () => {
-  const methods: string[] = [];
-  await assert.rejects(
-    merchantSigner({
+  for (const chain of [
+    "0x1",
+    "0x0127",
+    "0x129",
+    "296",
+    "0x",
+    "0x128junk",
+    "",
+    null,
+    296,
+  ]) {
+    const methods: string[] = [];
+    await assert.rejects(
+      merchantSigner({
+        isMetaMask: true,
+        request: async ({ method }) => {
+          methods.push(method);
+          return chain;
+        },
+      }),
+      /Hedera testnet/,
+    );
+    assert.deepEqual(methods, ["eth_chainId"]);
+  }
+});
+
+test("merchant authorization accepts equivalent hexadecimal Hedera testnet IDs", async () => {
+  for (const chain of ["0x128", "0x0128", "0x000128"]) {
+    const methods: string[] = [];
+    const { provider, signer } = await merchantSigner({
       isMetaMask: true,
       request: async ({ method }) => {
         methods.push(method);
-        return "0x1";
+        if (method === "eth_chainId") return chain;
+        if (method === "eth_accounts" || method === "eth_requestAccounts")
+          return [address];
+        throw new Error(`Unexpected wallet request: ${method}`);
       },
-    }),
-    /Hedera testnet/,
-  );
-  assert.deepEqual(methods, ["eth_chainId"]);
+    });
+    try {
+      assert.equal((await signer.getAddress()).toLowerCase(), address);
+      assert.ok(methods.includes("eth_requestAccounts"));
+    } finally {
+      provider.destroy();
+    }
+  }
 });
 
 test("invoice expiry remains inspectable beyond JavaScript's date range", () => {
