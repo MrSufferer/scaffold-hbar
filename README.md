@@ -62,6 +62,8 @@ Reports record source ref/commit, date, CLI/Node/npm versions, commands and per-
 
 ## Troubleshooting and extension
 
+See [reusable boundaries and maintenance](docs/extending.md) before replacing the UI or changing contract rules. The [final eligibility audit](docs/verification/final-audit.md) connects all 56 parent stories to source, generated-project and live-network evidence. Hedera Harness was not used; its spec/validator submission condition is not applicable. Bounty registration, survey and submission are separate activities outside this implementation.
+
 - An engine error: use the exact Node/npm pins; do not bypass engine checks.
 - A failed source-manifest stage: fix template.json in the source repo. Prompt fallback is not validation.
 - A failed install/build: read the matching stage log. A started process alone cannot pass the gate.

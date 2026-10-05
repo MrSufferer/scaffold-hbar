@@ -1,0 +1,85 @@
+{
+  "status": "failed",
+  "date": "2026-10-05T04:54:44.052Z",
+  "sourceCommit": "efa23ae5a6fe53bc0a2ee5154422cf23f58940e8",
+  "cliSourceCommit": "3c8fe60cf2aefd0f45594d5b589863556bb2a787",
+  "kind": "real-metamask-testnet",
+  "contract": "0x3467c4A13171B1216691D37B2C3E69d05133E9e8",
+  "chainId": 296,
+  "dappwright": "2.13.12",
+  "metamask": "13.17.0",
+  "cliEvidence": "2026-10-05-testnet-cli.json",
+  "stage": "payer payment confirmation",
+  "chromium": "141.0.7390.37",
+  "creations": [
+    {
+      "invoicePath": "/invoice/296/0x3467c4A13171B1216691D37B2C3E69d05133E9e8/5",
+      "hash": "0x7240ad4339e0c98ce62bb67f99967a60ebd863d8cc06e1039f0e3e3f20222cf7",
+      "block": 41375500
+    }
+  ],
+  "signingIntent": "payer payment requested",
+  "lastCreatedInvoicePath": "/invoice/296/0x3467c4A13171B1216691D37B2C3E69d05133E9e8/5",
+  "invoicePath": "/invoice/296/0x3467c4A13171B1216691D37B2C3E69d05133E9e8/5",
+  "approvedAmountTinybars": "1215433438",
+  "approvedRound": "18446744073709596754",
+  "review": "PUBLIC INVOICE\n\nInspect invoice 5\n\nNo wallet or payer account is needed. This link locates an invoice; it does not authenticate the merchant.\n\nNetwork\nHedera testnet \u00b7 chain ID 296\nContract from this link\n0x3467c4A13171B1216691D37B2C3E69d05133E9e8\nInvoice ID\n5\n\nCONTRACT STATE \u00b7 BLOCK 41375504\n\nOpen\nUSD amount\n$1.25 USD\nImmutable expiry (UTC)\n2026-10-05T05:56:00.000Z\nMerchant\n0xeD37FD0d6F0f69236E7472B36796e133D20EcC32\nRecipient\n0xeD37FD0d6F0f69236E7472B36796e133D20EcC32\nFixed HBAR/USD feed\n0x59bC155EB6c6C415fE43255aF66EcF0523c92B4a\nReference-price quote\nExact invoice payment\n12.15433438 HBAR\nExact tinybars\n1215433438\nOracle round\n18446744073709596754\nReference price updated (UTC)\n2026-10-05T04:32:39.000Z\nReference-price age at read\n1424 seconds\nQuote deadline (UTC, exclusive)\n2026-10-05T05:00:00.000Z\nEstimated network fees (separate)\nEstimate the actual payment transaction below before approval. Network fees are additional to the exact invoice payment.\n\nThis is an oracle reference price, not a live spot guarantee. Quotes last at most five minutes and may expire sooner. A new round or window requires a new quote and explicit approval before payment.\n\nState reflects the last successful contract read. Refresh to check again. Review the quote and estimate the network fee before explicit payment approval.\n\nMerchant administration\n\nOnly the fixed merchant can cancel this unpaid invoice. Cancellation is permanent; MetaMask requests approval and test HBAR network fees.\n\nCancel with MetaMask\n\nPay exact reviewed quote\n\nEstimate the payment transaction fee, then explicitly approve the exact quote. MetaMask shows the final network fee separately.\n\nEstimate payment network fee\nExact approved payment\n12.15433438 HBAR\nApproved oracle round\n18446744073709596754\nApproval deadline (UTC, exclusive)\n2026-10-05T05:00:00.000Z\nPayer\n0x00F5089ed5A3192cE8f8Ceb6a9c72ae04CC5F794\nEstimated network fee (separate, gas limit \u00d7 gas price)\n0.1374739 HBAR\nApprove exact quote and pay with MetaMask\n\nRefresh invoice",
+  "failureFrames": [
+    "    at async confirmPopup (/Users/kyler/repos/hedera-scaffold/packages/hardhat/scripts/metamask-checkout.ts:17:3)",
+    "    at async main (/Users/kyler/repos/hedera-scaffold/packages/hardhat/scripts/metamask-checkout.ts:420:5)"
+  ],
+  "lastAppView": "PUBLIC INVOICE\n\nInspect invoice 5\n\nNo wallet or payer account is needed. This link locates an invoice; it does not authenticate the merchant.\n\nNetwork\nHedera testnet \u00b7 chain ID 296\nContract from this link\n0x3467c4A13171B1216691D37B2C3E69d05133E9e8\nInvoice ID\n5\n\nCONTRACT STATE \u00b7 BLOCK 41375504\n\nOpen\nUSD amount\n$1.25 USD\nImmutable expiry (UTC)\n2026-10-05T05:56:00.000Z\nMerchant\n0xeD37FD0d6F0f69236E7472B36796e133D20EcC32\nRecipient\n0xeD37FD0d6F0f69236E7472B36796e133D20EcC32\nFixed HBAR/USD feed\n0x59bC155EB6c6C415fE43255aF66EcF0523c92B4a\nReference-price quote\nExact invoice payment\n12.15433438 HBAR\nExact tinybars\n1215433438\nOracle round\n18446744073709596754\nReference price updated (UTC)\n2026-10-05T04:32:39.000Z\nReference-price age at read\n1424 seconds\nQuote deadline (UTC, exclusive)\n2026-10-05T05:00:00.000Z\nEstimated network fees (separate)\nEstimate the actual payment transaction below before approval. Network fees are additional to the exact invoice payment.\n\nThis is an oracle reference price, not a live spot guarantee. Quotes last at most five minutes and may expire sooner. A new round or window requires a new quote and explicit approval before payment.\n\nState reflects the last successful contract read. Refresh to check again. Review the quote and estimate the network fee before explicit payment approval.\n\nMerchant administration\n\nOnly the fixed merchant can cancel this unpaid invoice. Cancellation is permanent; MetaMask requests approval and test HBAR network fees.\n\nCancel with MetaMask\n\nPay exact reviewed quote\n\nEstimate the payment transaction fee, then explicitly approve the exact quote. MetaMask shows the final network fee separately.\n\nEstimate payment network fee\n\nRefresh invoice to check current eligibility and quote conditions before another review.\n\nPayment validation failed before submission. Check invoice eligibility, testnet RPC and feed; refresh and review a new quote.\n\nRefresh invoice",
+  "recovery": [{}, {}],
+  "blocker": "Browser journey failed. Inspect the current UI locally; wallet traces and profiles must not be published.",
+  "profileCleanup": "Runner finally block closed contexts and removed owned profiles after failed pre-submission validation.",
+  "reconciliation": {
+    "date": "2026-10-05T04:58:02.721Z",
+    "invoiceId": "5",
+    "state": ["125", "1791179760", "0"],
+    "settlement": ["0x0000000000000000000000000000000000000000", "0", "0"],
+    "currentQuoteValidation": "passed",
+    "recentTransactions": [
+      {
+        "hash": "0x7240ad4339e0c98ce62bb67f99967a60ebd863d8cc06e1039f0e3e3f20222cf7",
+        "timestamp": "1791176175.684877554"
+      },
+      {
+        "hash": "0x122dcffa294f7ff2de43659a6c64a93f425dd04a1e51f66f5eac1e01eca9934a",
+        "timestamp": "1791175005.810135104"
+      },
+      {
+        "hash": "0x54dcb7f10d3f9c3845552f750fa3fdda2faff02565cc2b13f8697c0e1a7a5552",
+        "timestamp": "1791174992.991656193"
+      },
+      {
+        "hash": "0x1dddaa3183b7ede6535ea334fb2918be50829996be3a26beab708e2908de64f0",
+        "timestamp": "1791174977.849282104"
+      },
+      {
+        "hash": "0xdfda562f5c51b9b5b1b77af92d4e39428ea118e23a9bf42a567a2e033479ab12",
+        "timestamp": "1791174119.315515104"
+      },
+      {
+        "hash": "0x4028f4abc57a9d6ea584f2a7d20a89b568fde03fe438f27e5349aae5ee2f308d",
+        "timestamp": "1791171772.232695629"
+      },
+      {
+        "hash": "0x7e6bcbb91140f56ed1277265726f6a74e767e33d2690e9d29f8d4c4b117268df",
+        "timestamp": "1791171766.117774175"
+      },
+      {
+        "hash": "0x27761e9beb83a7bc6795c3f4dfe2f580f1eb77748249d50a8d8b528025f36bfd",
+        "timestamp": "1791171759.337638104"
+      },
+      {
+        "hash": "0x35b936d427e9d6e6a4e5b8289d7e1659f4b8f5e97e12b92fe9d1668632c88c4f",
+        "timestamp": "1791171752.737578104"
+      },
+      {
+        "hash": "0x4a5b6c6aa5782c99b6c6037f636a4504d2dcedb92d34dd79e9e3b52202d15e4d",
+        "timestamp": "1791171746.859169740"
+      }
+    ],
+    "conclusion": "App explicitly reported validation failure before submission, no wallet payment prompt and no saved payment intent; authoritative invoice remained open with zero settlement. No hashless pending intent was released. A separate newly created invoice requires fresh review/approval; the original failed run is retained."
+  }
+}

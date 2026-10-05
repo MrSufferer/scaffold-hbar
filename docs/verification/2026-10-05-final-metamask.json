@@ -1,0 +1,52 @@
+{
+  "status": "passed",
+  "date": "2026-10-05T04:58:50.941Z",
+  "sourceCommit": "efa23ae5a6fe53bc0a2ee5154422cf23f58940e8",
+  "cliSourceCommit": "3c8fe60cf2aefd0f45594d5b589863556bb2a787",
+  "kind": "real-metamask-testnet",
+  "contract": "0x3467c4A13171B1216691D37B2C3E69d05133E9e8",
+  "chainId": 296,
+  "dappwright": "2.13.12",
+  "metamask": "13.17.0",
+  "cliEvidence": "2026-10-05-testnet-cli.json",
+  "stage": "merchant cancellation",
+  "chromium": "141.0.7390.37",
+  "creations": [
+    {
+      "invoicePath": "/invoice/296/0x3467c4A13171B1216691D37B2C3E69d05133E9e8/6",
+      "hash": "0x11ed2987438073fd57b36bd6e24db63dea91f4979ef294f8f8f036199ba29637",
+      "block": 41375619
+    },
+    {
+      "invoicePath": "/invoice/296/0x3467c4A13171B1216691D37B2C3E69d05133E9e8/7",
+      "hash": "0xa3729c53bd74a90ef22e18fad9463fcd2f934d2761593dd94ecc69822ea4fd1d",
+      "block": 41375634
+    }
+  ],
+  "signingIntent": "merchant cancellation requested",
+  "lastCreatedInvoicePath": "/invoice/296/0x3467c4A13171B1216691D37B2C3E69d05133E9e8/7",
+  "invoicePath": "/invoice/296/0x3467c4A13171B1216691D37B2C3E69d05133E9e8/6",
+  "approvedAmountTinybars": "1215433438",
+  "approvedRound": "18446744073709596754",
+  "review": "PUBLIC INVOICE\n\nInspect invoice 6\n\nNo wallet or payer account is needed. This link locates an invoice; it does not authenticate the merchant.\n\nNetwork\nHedera testnet \u00b7 chain ID 296\nContract from this link\n0x3467c4A13171B1216691D37B2C3E69d05133E9e8\nInvoice ID\n6\n\nCONTRACT STATE \u00b7 BLOCK 41375622\n\nOpen\nUSD amount\n$1.25 USD\nImmutable expiry (UTC)\n2026-10-05T06:00:00.000Z\nMerchant\n0xeD37FD0d6F0f69236E7472B36796e133D20EcC32\nRecipient\n0xeD37FD0d6F0f69236E7472B36796e133D20EcC32\nFixed HBAR/USD feed\n0x59bC155EB6c6C415fE43255aF66EcF0523c92B4a\nReference-price quote\nExact invoice payment\n12.15433438 HBAR\nExact tinybars\n1215433438\nOracle round\n18446744073709596754\nReference price updated (UTC)\n2026-10-05T04:32:39.000Z\nReference-price age at read\n1665 seconds\nQuote deadline (UTC, exclusive)\n2026-10-05T05:05:00.000Z\nEstimated network fees (separate)\nEstimate the actual payment transaction below before approval. Network fees are additional to the exact invoice payment.\n\nThis is an oracle reference price, not a live spot guarantee. Quotes last at most five minutes and may expire sooner. A new round or window requires a new quote and explicit approval before payment.\n\nState reflects the last successful contract read. Refresh to check again. Review the quote and estimate the network fee before explicit payment approval.\n\nMerchant administration\n\nOnly the fixed merchant can cancel this unpaid invoice. Cancellation is permanent; MetaMask requests approval and test HBAR network fees.\n\nCancel with MetaMask\n\nPay exact reviewed quote\n\nEstimate the payment transaction fee, then explicitly approve the exact quote. MetaMask shows the final network fee separately.\n\nEstimate payment network fee\nExact approved payment\n12.15433438 HBAR\nApproved oracle round\n18446744073709596754\nApproval deadline (UTC, exclusive)\n2026-10-05T05:05:00.000Z\nPayer\n0x00F5089ed5A3192cE8f8Ceb6a9c72ae04CC5F794\nEstimated network fee (separate, gas limit \u00d7 gas price)\n0.1374739 HBAR\nApprove exact quote and pay with MetaMask\n\nRefresh invoice",
+  "paymentUrl": "https://hashscan.io/testnet/transaction/0x5b520a58f3c47cad5bced83d7f6121423f2052d6e770ae549361745ca955c1c4",
+  "merchantDeltaWeibars": "12154334380000000000",
+  "paymentBlock": 41375628,
+  "cancelledInvoicePath": "/invoice/296/0x3467c4A13171B1216691D37B2C3E69d05133E9e8/7",
+  "cancellationHash": "0x6d95c80b12b94a459172ed513159502a30845ecd965ead9236ac49cb559eff94",
+  "cancellationBlock": 41375641,
+  "deploymentVerification": {
+    "date": "2026-10-05T04:59:18.289Z",
+    "chainId": "296",
+    "block": 41375587,
+    "contract": "0x3467c4A13171B1216691D37B2C3E69d05133E9e8",
+    "runtimeCodeHash": "0x9d6310a5dd0dee1b8fc45e9baa68d1c9a94c7001326847c5c6c39fe1b5467914",
+    "compiledRuntimeMatchAfterMaskingDeclaredImmutables": true,
+    "merchant": "0xeD37FD0d6F0f69236E7472B36796e133D20EcC32",
+    "recipient": "0xeD37FD0d6F0f69236E7472B36796e133D20EcC32",
+    "feed": "0x59bC155EB6c6C415fE43255aF66EcF0523c92B4a",
+    "sourceComparison": "No diff in Solidity or shipped artifact from CLI deployment source 3c8fe60 to efa23ae."
+  },
+  "priorFailedRun": "2026-10-05-final-metamask-failed.json",
+  "profileCleanup": "Runner closed browser and removed its isolated profile in finally."
+}

@@ -1,0 +1,210 @@
+{
+  "auditDate": "2026-10-05",
+  "status": "incomplete",
+  "reason": "Committed local and public candidate/default gates remain pending; current-app real MetaMask checkout passed.",
+  "preAuditPublicDefault": {
+    "gate": {
+      "source": "MrSufferer/scaffold-hbar",
+      "requestedRef": "public-default",
+      "sourceCommit": "3c3937b30e4aaa848f9ee2044ecd91c857384326",
+      "mode": "public-default",
+      "node": "v24.10.0",
+      "npm": "11.6.1",
+      "cli": "0.4.1",
+      "date": "2026-10-05T04:51:56.941Z",
+      "status": "passed",
+      "stages": [
+        {
+          "name": "runtime",
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "export-source",
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "source-manifest-and-packaging",
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "published-generation",
+          "status": "passed",
+          "command": [
+            "npm",
+            "create",
+            "scaffold-hbar@latest",
+            "--",
+            "generated",
+            "--template",
+            "MrSufferer/scaffold-hbar",
+            "--frontend",
+            "nextjs-app",
+            "--solidity-framework",
+            "hardhat",
+            "--package-manager",
+            "npm",
+            "--network",
+            "testnet",
+            "--skip-install",
+            "--skip-hedera-skills",
+            "--yes"
+          ],
+          "error": ""
+        },
+        {
+          "name": "generated-artifacts",
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "generated-checks",
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "production-boot",
+          "status": "passed",
+          "command": [
+            "npm",
+            "run",
+            "start",
+            "--",
+            "--hostname",
+            "127.0.0.1",
+            "--port",
+            "49204"
+          ],
+          "error": ""
+        },
+        {
+          "name": "HTTP /",
+          "status": "passed"
+        },
+        {
+          "name": "HTTP /setup",
+          "status": "passed"
+        },
+        {
+          "name": "HTTP /merchant",
+          "status": "passed"
+        },
+        {
+          "name": "HTTP /deploy",
+          "status": "passed"
+        },
+        {
+          "name": "HTTP /invoice/296/0x1111111111111111111111111111111111111111/1",
+          "status": "passed"
+        },
+        {
+          "name": "generated-invoice-journey",
+          "status": "passed",
+          "command": [
+            "npm exec playwright -- install chromium",
+            "npm run test:journey"
+          ],
+          "error": ""
+        },
+        {
+          "name": "default-ref-stability",
+          "status": "passed",
+          "error": ""
+        }
+      ]
+    },
+    "generatedChecks": {
+      "source": "MrSufferer/scaffold-hbar",
+      "requestedRef": "public-default",
+      "sourceCommit": "3c3937b30e4aaa848f9ee2044ecd91c857384326",
+      "mode": "public-default",
+      "node": "v24.10.0",
+      "npm": "11.6.1",
+      "cli": "0.4.1",
+      "date": "2026-10-05T04:52:02.739Z",
+      "status": "passed",
+      "stages": [
+        {
+          "name": "install",
+          "command": "npm",
+          "args": ["ci"],
+          "status": "passed",
+          "log": "/tmp/hbar-invoices-audit-default-before/install.log",
+          "error": ""
+        },
+        {
+          "name": "format",
+          "command": "npm",
+          "args": ["run", "format"],
+          "status": "passed",
+          "log": "/tmp/hbar-invoices-audit-default-before/format.log",
+          "error": ""
+        },
+        {
+          "name": "typecheck",
+          "command": "npm",
+          "args": ["run", "check-types"],
+          "status": "passed",
+          "log": "/tmp/hbar-invoices-audit-default-before/typecheck.log",
+          "error": ""
+        },
+        {
+          "name": "test",
+          "command": "npm",
+          "args": ["test"],
+          "status": "passed",
+          "log": "/tmp/hbar-invoices-audit-default-before/test.log",
+          "error": ""
+        },
+        {
+          "name": "lint",
+          "command": "npm",
+          "args": ["run", "lint"],
+          "status": "passed",
+          "log": "/tmp/hbar-invoices-audit-default-before/lint.log",
+          "error": ""
+        },
+        {
+          "name": "build",
+          "command": "npm",
+          "args": ["run", "build"],
+          "status": "passed",
+          "log": "/tmp/hbar-invoices-audit-default-before/build.log",
+          "error": ""
+        }
+      ],
+      "sourceManifestRequired": false
+    }
+  },
+  "sourceScan": {
+    "sourceCommit": "efa23ae5a6fe53bc0a2ee5154422cf23f58940e8",
+    "trackedFilesScanned": 96,
+    "rules": [
+      "private-key-block",
+      "literal-signing-key",
+      "github-token",
+      "aws-key"
+    ],
+    "findings": [],
+    "scope": "Tracked HEAD snapshot; no secret values printed. Pattern scan and source review, not a comprehensive security audit."
+  },
+  "liveEvidence": {
+    "status": "passed",
+    "record": "2026-10-05-final-metamask.json",
+    "sourceCommit": "efa23ae5a6fe53bc0a2ee5154422cf23f58940e8",
+    "contractAndWalletApplicability": "Later audit edits change documentation/evidence only. Runtime bytecode and immutable deployment identity match current compilation."
+  },
+  "sourceChecks": {
+    "sourceCommit": "efa23ae5a6fe53bc0a2ee5154422cf23f58940e8",
+    "status": "passed",
+    "commands": [
+      "npm run check-types",
+      "npm test",
+      "npm run lint",
+      "npm run build"
+    ],
+    "tests": 39
+  }
+}
