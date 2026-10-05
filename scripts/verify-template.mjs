@@ -154,6 +154,28 @@ function checkGenerated() {
     ),
     "Generated agent guide lost cancellation recovery",
   );
+  const payment = readFileSync(
+    path.join(projectDir, "docs/invoice-payment.md"),
+    "utf8",
+  );
+  for (const marker of [
+    "Estimate payment network fee",
+    "Approve exact quote and pay with MetaMask",
+    "Check payment transaction",
+    "InvoiceSettled",
+    "weibars",
+    "tinybars",
+  ])
+    assert(
+      payment.includes(marker),
+      `Generated settlement guide lost ${marker}`,
+    );
+  assert(
+    readFileSync(path.join(projectDir, "AGENTS.md"), "utf8").includes(
+      "docs/invoice-payment.md",
+    ),
+    "Generated agent guide lost settlement boundary",
+  );
 }
 
 async function boot() {

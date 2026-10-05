@@ -1,12 +1,12 @@
 # Review a USD-reference HBAR quote
 
-Generate and install using the single supported stack in [README](../README.md), then follow [deployment, creation and inspection](invoice-creation.md). This contract version adds quote review. A previous creation-only deployment must be replaced with a fresh deployment to gain this interface; existing links retain their original contract and may report quote reads unavailable. Payment is a later slice; merchant cancellation is available.
+Generate and install using the single supported stack in [README](../README.md), then follow [deployment, creation and inspection](invoice-creation.md). This contract version adds quote review. A previous creation-only deployment must be replaced with a fresh deployment to gain this interface; existing links retain their original contract and may report quote reads unavailable. Merchant cancellation and [exact approved payment](invoice-payment.md) are available in the current revision.
 
 Open an invoice link without a wallet. The view shows its original chain 296, contract, invoice ID, recipient and USD amount. State and quote use the same consensus block. The contract reads the fixed Chainlink HBAR/USD reference feed; the browser never computes a payable amount or substitutes a price. The address is configured by the shipped MetaMask deployment path, and the frontend refuses quotes from another feed identity. A link and returned data do not authenticate contract bytecode or merchant identity.
 
 The quote shows exact HBAR to all eight decimal places, integer tinybars, oracle round, price-update timestamp in UTC, price age at the read block and an exclusive UTC deadline. The price can be up to 24 hours old: it is a **reference price, not a live spot guarantee**. Reference-price age is explicitly a snapshot, not a continuously refreshed oracle measurement.
 
-Network fees are separate from the exact invoice payment. This deployment has no payment method, so it cannot estimate a settlement transaction's gas or total fee. The fee field says **Unavailable** and explains that fees will be additional. It never presents zero, a guessed total or a read-call fee as the settlement estimate. The settlement slice must estimate the actual payment transaction before approval and still let MetaMask present its final fee.
+Network fees are separate from the exact invoice payment. Choose **Estimate payment network fee** to estimate the actual `payInvoice` transaction before explicit approval. A failed estimate blocks approval. The fee is additional to the exact invoice payment and MetaMask presents its final fee; no read-call fee or guessed total substitutes for this estimate.
 
 ## Quote contract boundary
 
@@ -29,7 +29,7 @@ Conversion uses integers: cents × 10^(feed decimals + 6) divided by the price, 
 
 Quotes expire at the end of a fixed five-minute consensus window, or earlier at invoice expiry or `priceUpdatedAt + 86,400`, whichever comes first. They can last less than five minutes. At exactly 24 hours the price validation succeeds, but its quote has no remaining lifetime and is not usable. At a deadline, validation rejects the quote; a read before the deadline does not reserve eligibility.
 
-`validateQuote(Quote approved)` verifies the exact returned tuple against current contract-derived values and rejects an elapsed deadline. It accepts no client issuance time. Changing a deadline, amount, round, invoice or window changes the quote; an old window cannot be revived by replacing only its deadline. A fresh window or new oracle round requires a fresh quote and explicit new approval. This view establishes the verification boundary for the later atomic payment method; it does not reserve or submit a payment. Later payment code must enforce these conditions during settlement itself and carry the original chain/contract context through submission and recovery.
+`validateQuote(Quote approved)` verifies the exact returned tuple against current contract-derived values and rejects an elapsed deadline. It accepts no client issuance time. Changing a deadline, amount, round, invoice or window changes the quote; an old window cannot be revived by replacing only its deadline. A fresh window or new oracle round requires a fresh quote and explicit new approval. This view establishes the verification boundary for the atomic payment method; it does not reserve or submit a payment. `payInvoice` enforces these conditions during settlement itself and carry the original chain/contract context through submission and recovery.
 
 ## No-quote states and recovery
 

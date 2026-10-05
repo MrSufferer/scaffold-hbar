@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import CancelInvoice from "./CancelInvoice";
+import PayInvoice from "./PayInvoice";
 import {
   formatExpiry,
   formatUsd,
@@ -98,8 +99,8 @@ export default function InvoiceDetails({
                 <dd>{formatExpiry(quote.deadline)}</dd>
                 <dt>Estimated network fees (separate)</dt>
                 <dd>
-                  Unavailable: payment submission is not implemented. Network
-                  fees are additional to the exact invoice payment.
+                  Estimate the actual payment transaction below before approval.
+                  Network fees are additional to the exact invoice payment.
                 </dd>
               </dl>
               <p className="notice">
@@ -123,7 +124,7 @@ export default function InvoiceDetails({
             State reflects the last successful contract read. Refresh to check
             again.{" "}
             {view.state === "Open"
-              ? "Payment is not implemented in this deployment."
+              ? "Review the quote and estimate the network fee before explicit payment approval."
               : "This invoice is no longer payable. Checkout is unavailable."}
           </p>
           <CancelInvoice
@@ -136,6 +137,14 @@ export default function InvoiceDetails({
           />
         </>
       )}
+      <PayInvoice
+        identity={identity}
+        view={view}
+        onConfirmed={() => {
+          setView(null);
+          setRevision((value) => value + 1);
+        }}
+      />
       <button
         type="button"
         className="button secondary"

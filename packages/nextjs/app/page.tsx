@@ -17,7 +17,8 @@ export default function Home() {
         </h1>
         <p className="lead">
           Build USD-reference invoices paid in HBAR. Create an invoice and share
-          its public link. Quote and payment support follow in later slices.
+          its public link. Review an exact quote and approve payment with
+          MetaMask.
         </p>
         <Link href="/merchant" className="button">
           Create an invoice <span aria-hidden="true">↗</span>

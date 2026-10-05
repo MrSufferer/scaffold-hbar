@@ -34,7 +34,7 @@ export type InvoiceView = InvoiceIdentity & {
   feed: string;
   usdCents: string;
   expiresAt: string;
-  state: "Open" | "Expired" | "Cancelled";
+  state: "Open" | "Expired" | "Cancelled" | "Settled";
   blockNumber: number;
   blockTimestamp: string;
   quoteResult: QuoteResult;
@@ -130,7 +130,7 @@ export async function readInvoice(
       contract.getFunction("getInvoice")(identity.invoiceId, at),
     ]);
     const state = Number(invoice[2]);
-    if (state !== 0 && state !== 1 && state !== 2)
+    if (state !== 0 && state !== 1 && state !== 2 && state !== 3)
       throw new Error("Unsupported contract lifecycle version.");
     let quoteResult: QuoteResult;
     if (state !== 0) {
@@ -186,7 +186,14 @@ export async function readInvoice(
       feed,
       usdCents: invoice[0].toString(),
       expiresAt: invoice[1].toString(),
-      state: state === 0 ? "Open" : state === 1 ? "Expired" : "Cancelled",
+      state:
+        state === 0
+          ? "Open"
+          : state === 1
+            ? "Expired"
+            : state === 2
+              ? "Cancelled"
+              : "Settled",
       blockNumber: block.number,
       blockTimestamp: block.timestamp.toString(),
       quoteResult,

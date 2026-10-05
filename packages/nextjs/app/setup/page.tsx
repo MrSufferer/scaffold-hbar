@@ -77,7 +77,8 @@ export default function Setup() {
           <li>
             Deploy the invoice contract at /deploy, verify its merchant and feed
             identity, then set the public contract address. Open /merchant to
-            create and share an invoice. Payment follows in later slices.
+            create and share an invoice. The payer reviews an exact quote and
+            approves payment with MetaMask.
           </li>
         </ol>
         <p>

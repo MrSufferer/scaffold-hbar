@@ -50,7 +50,14 @@ export default function CancelInvoice({
     onConfirmed();
   }
   async function cancel() {
-    if (busy || blocked || transaction || view.state === "Cancelled") return;
+    if (
+      busy ||
+      blocked ||
+      transaction ||
+      view.state === "Cancelled" ||
+      view.state === "Settled"
+    )
+      return;
     setBusy(true);
     setMessage("");
     let submitted = false;
@@ -114,7 +121,7 @@ export default function CancelInvoice({
         Only the fixed merchant can cancel this unpaid invoice. Cancellation is
         permanent; MetaMask requests approval and test HBAR network fees.
       </p>
-      {view.state !== "Cancelled" && (
+      {view.state !== "Cancelled" && view.state !== "Settled" && (
         <button
           type="button"
           className="button secondary"

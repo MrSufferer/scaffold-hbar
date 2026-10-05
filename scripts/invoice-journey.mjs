@@ -245,6 +245,9 @@ try {
   let selected = accounts[0];
   let rejectRequest = false;
   let holdReceipts = false;
+  let rejectPayment = false;
+  let paymentSubmissions = 0;
+  const invoiceAbi = new Interface(artifact.abi);
   await context.exposeFunction(
     "invoiceWalletRpc",
     async (
@@ -256,6 +259,40 @@ try {
       if (method === "eth_requestAccounts" || method === "eth_accounts")
         return [selected];
       if (method === "eth_getTransactionReceipt" && holdReceipts) return null;
+      // Explicit test relay: Hedera converts wire weibars to EVM tinybars.
+      // Hardhat does not, so this disposable fixture models that boundary only.
+      if (method === "eth_estimateGas" || method === "eth_sendTransaction") {
+        const request =
+          /** @type {{data?: string, value?: string, to?: string, from?: string}} */ (
+            params?.[0]
+          );
+        if (
+          request?.data?.startsWith(
+            invoiceAbi.getFunction("payInvoice").selector,
+          )
+        ) {
+          const approved = invoiceAbi.decodeFunctionData(
+            "payInvoice",
+            request.data,
+          )[0];
+          assert.equal(
+            BigInt(request.value || "0"),
+            approved.amountTinybars * 10000000000n,
+          );
+          if (method === "eth_sendTransaction") {
+            if (rejectPayment) return { walletRejected: true };
+            ++paymentSubmissions;
+            assert.equal(
+              request.from?.toLowerCase(),
+              accounts[1].toLowerCase(),
+            );
+          }
+          return rpc(method, [
+            { ...request, value: "0x" + approved.amountTinybars.toString(16) },
+            ...(params?.slice(1) || []),
+          ]);
+        }
+      }
       return rpc(method, params);
     },
   );
@@ -462,17 +499,21 @@ try {
   await page.goto(base + locator);
   selected = accounts[1];
   await page.getByRole("button", { name: "Cancel with MetaMask" }).click();
-  await expect(page.getByRole("status")).toContainText(
-    "Only the deployed merchant",
-  );
+  await expect(
+    page.getByRole("status").filter({ hasText: "Only the deployed merchant" }),
+  ).toContainText("Only the deployed merchant");
   selected = accounts[0];
   wrongChain = true;
   await page.getByRole("button", { name: "Cancel with MetaMask" }).click();
-  await expect(page.getByRole("status")).toContainText("Switch MetaMask");
+  await expect(
+    page.getByRole("status").filter({ hasText: "Switch MetaMask" }),
+  ).toContainText("Switch MetaMask");
   wrongChain = false;
   rejectRequest = true;
   await page.getByRole("button", { name: "Cancel with MetaMask" }).click();
-  await expect(page.getByRole("status")).toContainText("Request rejected");
+  await expect(
+    page.getByRole("status").filter({ hasText: "Request rejected" }),
+  ).toContainText("Request rejected");
   rejectRequest = false;
   holdReceipts = true;
   await page.getByRole("button", { name: "Cancel with MetaMask" }).click();
@@ -531,6 +572,114 @@ try {
   await expect(
     publicPage.getByText("$0.01 USD", { exact: true }),
   ).toBeVisible();
+  // Complete payer approval through the actual UI; saved quote never silently reprices.
+  selected = accounts[1];
+  const paymentLocator = `/invoice/296/${contract}/2`;
+  await page.goto(base + paymentLocator);
+  const paymentStatus = page.getByRole("status", { name: "Payment status" });
+  wrongChain = true;
+  await page
+    .getByRole("button", { name: "Estimate payment network fee" })
+    .click();
+  await expect(paymentStatus).toContainText("Switch MetaMask");
+  wrongChain = false;
+  await page
+    .getByRole("button", { name: "Estimate payment network fee" })
+    .click();
+  await expect(
+    page.getByRole("button", {
+      name: "Approve exact quote and pay with MetaMask",
+    }),
+  ).toBeVisible();
+  rejectPayment = true;
+  await page
+    .getByRole("button", { name: "Approve exact quote and pay with MetaMask" })
+    .click();
+  await expect(paymentStatus).toContainText("Request rejected");
+  assert.equal(paymentSubmissions, 0);
+  rejectPayment = false;
+  // Same numeric price but a new round requires a new review, with no wallet submission.
+  await page
+    .getByRole("button", { name: "Estimate payment network fee" })
+    .click();
+  await expect(
+    page.getByRole("button", {
+      name: "Approve exact quote and pay with MetaMask",
+    }),
+  ).toBeVisible();
+  await setFeed("setRound", [11, 300000000, freshTime, freshTime, 11]);
+  await page
+    .getByRole("button", { name: "Approve exact quote and pay with MetaMask" })
+    .click();
+  await expect(paymentStatus).toContainText("Payment validation failed");
+  assert.equal(paymentSubmissions, 0);
+  await page.getByRole("button", { name: "Refresh invoice" }).click();
+  await expect(
+    page.getByText("0.00333334 HBAR", { exact: true }),
+  ).toBeVisible();
+  await page
+    .getByRole("button", { name: "Estimate payment network fee" })
+    .click();
+  await expect(
+    page.getByRole("button", {
+      name: "Approve exact quote and pay with MetaMask",
+    }),
+  ).toBeVisible();
+  const merchantBefore = BigInt(
+    await rpc("eth_getBalance", [accounts[0], "latest"]),
+  );
+  holdReceipts = true;
+  await page
+    .getByRole("button", { name: "Approve exact quote and pay with MetaMask" })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "Payment outcome pending" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Confirmed payment receipt" }),
+  ).toHaveCount(0);
+  await page.reload();
+  await expect(
+    page.getByRole("heading", { name: "Payment outcome pending" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", {
+      name: "Approve exact quote and pay with MetaMask",
+    }),
+  ).toHaveCount(0);
+  holdReceipts = false;
+  await page.getByRole("button", { name: "Check payment transaction" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Confirmed payment receipt" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Settled", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "View confirmed transaction on HashScan" }),
+  ).toHaveAttribute("href", /\/testnet\/transaction\/0x[0-9a-fA-F]{64}$/);
+  await expect(page.getByText(/333334 tinybars/)).toBeVisible();
+  assert.equal(paymentSubmissions, 1);
+  assert.equal(
+    BigInt(await rpc("eth_getBalance", [accounts[0], "latest"])) -
+      merchantBefore,
+    333334n,
+  );
+  await expect(
+    page.getByRole("button", { name: "Cancel with MetaMask" }),
+  ).toHaveCount(0);
+  await page.reload();
+  await page.getByRole("button", { name: "Check payment transaction" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Confirmed payment receipt" }),
+  ).toBeVisible();
+  await publicPage.reload();
+  await expect(
+    publicPage.getByRole("heading", { name: "Settled", exact: true }),
+  ).toBeVisible();
+  await expect(
+    publicPage.getByRole("button", { name: /approve|estimate payment/i }),
+  ).toHaveCount(0);
   await publicPage.goto(`${base}/invoice/296/${contract}/999`);
   await expect(
     publicPage
@@ -590,7 +739,7 @@ try {
     publicPage.getByRole("heading", { name: "Expired", exact: true }),
   ).toHaveCount(0);
   console.log(
-    "PASS local creation/read/cancellation/quote journey: browser deployment, merchant authorization, wrong network, wallet rejection, pending reload, cancellation authorization/rejection/pending reload, wallet-free exact/fractional quote review, separate fee-unavailable state, display expiry, consensus window refresh, failed/invalid/stale feed clearing and recovery, nonexistent invoice, expiry, failed-read clearing. Simulated wallet/local EVM only; no testnet deployment or payment evidence.",
+    "PASS local creation/read/cancellation/quote/settlement journey: browser deployment, authorization, wrong network, wallet rejection, pending reload, cancellation, wallet-free exact/fractional quote review, fee estimation, explicit approval, changed-round rejection, exact wire-to-EVM test conversion, atomic recipient balance delta, confirmed receipt and reload recovery, settled payer state, expiry and failed-read clearing. Simulated wallet/local EVM/test relay only; no testnet deployment or payment evidence.",
   );
 } finally {
   await cleanup();
