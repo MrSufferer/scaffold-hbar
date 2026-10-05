@@ -144,8 +144,8 @@ export default function Merchant({ contract }: { contract: string | null }) {
       </dl>
       {!contract && (
         <p>
-          <Link href="/deploy">Deploy the creation/read contract</Link>, then
-          set NEXT_PUBLIC_INVOICE_CONTRACT and rebuild.
+          <Link href="/deploy">Deploy the invoice contract</Link>, then set
+          NEXT_PUBLIC_INVOICE_CONTRACT and rebuild.
         </p>
       )}
       <form onSubmit={create}>

@@ -399,9 +399,9 @@ try {
   await publicPage.evaluate((deadline) => {
     Date.now = () => deadline * 1000;
   }, quoteDeadline);
-  await expect(publicPage.getByRole("status")).toContainText(
-    "displayed quote expired",
-  );
+  await expect(
+    publicPage.getByRole("status", { name: "Quote status" }),
+  ).toContainText("displayed quote expired");
   await expect(
     publicPage.getByText("12.50000000 HBAR", { exact: true }),
   ).toHaveCount(0);
@@ -421,9 +421,9 @@ try {
   // No wallet, fallback price or stale successful quote survives a failed oracle read.
   await setFeed("setFailures", [true, false]);
   await publicPage.getByRole("button", { name: "Refresh invoice" }).click();
-  await expect(publicPage.getByRole("status")).toContainText(
-    "Quote read unavailable",
-  );
+  await expect(
+    publicPage.getByRole("status", { name: "Quote status" }),
+  ).toContainText("Quote read unavailable");
   await expect(
     publicPage.getByText("12.50000000 HBAR", { exact: true }),
   ).toHaveCount(0);
@@ -433,9 +433,9 @@ try {
   await setFeed("setFailures", [false, false]);
   await setFeed("setRound", [8, 0, feedTime, feedTime, 8]);
   await publicPage.getByRole("button", { name: "Refresh invoice" }).click();
-  await expect(publicPage.getByRole("status")).toContainText(
-    "invalid or incomplete",
-  );
+  await expect(
+    publicPage.getByRole("status", { name: "Quote status" }),
+  ).toContainText("invalid or incomplete");
   await setFeed("setRound", [
     9,
     10000000,
@@ -444,9 +444,9 @@ try {
     9,
   ]);
   await publicPage.getByRole("button", { name: "Refresh invoice" }).click();
-  await expect(publicPage.getByRole("status")).toContainText(
-    "older than 24 hours",
-  );
+  await expect(
+    publicPage.getByRole("status", { name: "Quote status" }),
+  ).toContainText("older than 24 hours");
   const freshBlock = await rpc("eth_getBlockByNumber", ["latest", false]);
   const freshTime = Number(BigInt(freshBlock.timestamp));
   await setFeed("setRound", [10, 300000000, freshTime, freshTime, 10]);
@@ -458,6 +458,59 @@ try {
   assert.equal(fractional.quoteResult.quote.roundId, "10");
   assert.equal(fractional.quoteResult.quote.amountTinybars, "41666667");
 
+  // Merchant cancellation uses the original locator even if public configuration changes.
+  await page.goto(base + locator);
+  selected = accounts[1];
+  await page.getByRole("button", { name: "Cancel with MetaMask" }).click();
+  await expect(page.getByRole("status")).toContainText(
+    "Only the deployed merchant",
+  );
+  selected = accounts[0];
+  wrongChain = true;
+  await page.getByRole("button", { name: "Cancel with MetaMask" }).click();
+  await expect(page.getByRole("status")).toContainText("Switch MetaMask");
+  wrongChain = false;
+  rejectRequest = true;
+  await page.getByRole("button", { name: "Cancel with MetaMask" }).click();
+  await expect(page.getByRole("status")).toContainText("Request rejected");
+  rejectRequest = false;
+  holdReceipts = true;
+  await page.getByRole("button", { name: "Cancel with MetaMask" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Cancellation outcome pending" }),
+  ).toBeVisible();
+  await page.reload();
+  await expect(
+    page.getByRole("heading", { name: "Cancellation outcome pending" }),
+  ).toBeVisible();
+  holdReceipts = false;
+  await page
+    .getByRole("button", { name: "Check cancellation transaction" })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "Cancelled", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Cancel with MetaMask" }),
+  ).toHaveCount(0);
+  await publicPage.getByRole("button", { name: "Refresh invoice" }).click();
+  await expect(
+    publicPage.getByRole("heading", { name: "Cancelled", exact: true }),
+  ).toBeVisible();
+  await publicPage.reload();
+  await expect(
+    publicPage.getByRole("heading", { name: "Cancelled", exact: true }),
+  ).toBeVisible();
+  await expect(
+    publicPage.getByRole("status", { name: "Quote status" }),
+  ).toContainText("This invoice is no longer payable");
+  await expect(
+    publicPage.getByRole("button", { name: /pay|checkout/i }),
+  ).toHaveCount(0);
+  assert.equal(
+    (await (await fetch(`${base}/api${locator}`)).json()).state,
+    "Cancelled",
+  );
   await rpc("eth_sendTransaction", [
     {
       from: accounts[0],
@@ -488,12 +541,39 @@ try {
   await expect(
     publicPage.getByRole("heading", { name: "Invalid invoice link" }),
   ).toBeVisible();
+  await rpc("eth_sendTransaction", [
+    {
+      from: accounts[0],
+      to: contract,
+      data: new Interface(artifact.abi).encodeFunctionData("createInvoice", [
+        125n,
+        BigInt(view.expiresAt),
+      ]),
+    },
+  ]);
+  const expiryLocator = `/invoice/296/${contract}/3`;
+  await rpc("evm_setNextBlockTimestamp", [Number(view.expiresAt) - 1]);
+  await rpc("evm_mine");
+  await publicPage.goto(base + expiryLocator);
+  await expect(
+    publicPage.getByRole("heading", { name: "Open", exact: true }),
+  ).toBeVisible();
   await rpc("evm_setNextBlockTimestamp", [Number(view.expiresAt)]);
   await rpc("evm_mine");
-  await publicPage.goto(base + locator);
+  await publicPage.goto(base + expiryLocator);
   await expect(
     publicPage.getByRole("heading", { name: "Expired", exact: true }),
   ).toBeVisible();
+  await expect(
+    publicPage.getByRole("status", { name: "Quote status" }),
+  ).toContainText("This invoice is no longer payable");
+  await expect(
+    publicPage.getByRole("button", { name: /pay|checkout/i }),
+  ).toHaveCount(0);
+  assert.equal(
+    (await (await fetch(`${base}/api${locator}`)).json()).state,
+    "Cancelled",
+  );
   // A failed read must clear the previously displayed state.
   tlsProxy.closeAllConnections();
   await new Promise((resolve) => tlsProxy.close(resolve));
@@ -510,7 +590,7 @@ try {
     publicPage.getByRole("heading", { name: "Expired", exact: true }),
   ).toHaveCount(0);
   console.log(
-    "PASS local creation/read/quote journey: browser deployment, merchant authorization, wrong network, wallet rejection, pending reload, wallet-free exact/fractional quote review, separate fee-unavailable state, display expiry, consensus window refresh, failed/invalid/stale feed clearing and recovery, nonexistent invoice, expiry, failed-read clearing. Simulated wallet/local EVM only; no testnet deployment or payment evidence.",
+    "PASS local creation/read/cancellation/quote journey: browser deployment, merchant authorization, wrong network, wallet rejection, pending reload, cancellation authorization/rejection/pending reload, wallet-free exact/fractional quote review, separate fee-unavailable state, display expiry, consensus window refresh, failed/invalid/stale feed clearing and recovery, nonexistent invoice, expiry, failed-read clearing. Simulated wallet/local EVM only; no testnet deployment or payment evidence.",
   );
 } finally {
   await cleanup();

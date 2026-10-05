@@ -1,6 +1,6 @@
 # Review a USD-reference HBAR quote
 
-Generate and install using the single supported stack in [README](../README.md), then follow [deployment, creation and inspection](invoice-creation.md). This contract version adds quote review. A previous creation-only deployment must be replaced with a fresh deployment to gain this interface; existing links retain their original contract and may report quote reads unavailable. Payment and cancellation are later slices.
+Generate and install using the single supported stack in [README](../README.md), then follow [deployment, creation and inspection](invoice-creation.md). This contract version adds quote review. A previous creation-only deployment must be replaced with a fresh deployment to gain this interface; existing links retain their original contract and may report quote reads unavailable. Payment is a later slice; merchant cancellation is available.
 
 Open an invoice link without a wallet. The view shows its original chain 296, contract, invoice ID, recipient and USD amount. State and quote use the same consensus block. The contract reads the fixed Chainlink HBAR/USD reference feed; the browser never computes a payable amount or substitutes a price. The address is configured by the shipped MetaMask deployment path, and the frontend refuses quotes from another feed identity. A link and returned data do not authenticate contract bytecode or merchant identity.
 
@@ -33,7 +33,7 @@ Quotes expire at the end of a fixed five-minute consensus window, or earlier at 
 
 ## No-quote states and recovery
 
-- An expired invoice has no quote. Ask the merchant for a new invoice.
+- An expired or cancelled invoice has no quote. Ask the merchant for a new invoice.
 - An invalid price, round or timestamp has no quote. Wait for valid feed data and refresh.
 - A stale reference price has no quote. Wait for an oracle update; changing browser time cannot update it.
 - Failed reads have no quote. Verify RPC availability, contract interface and fixed feed, then refresh.

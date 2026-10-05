@@ -134,6 +134,19 @@ describe("Quote conversion and feed rejection", () => {
 });
 
 describe("Contract-verifiable quote lifetime", () => {
+  it("rejects new and previously approved quotes after merchant cancellation", async () => {
+    const { invoices } = await fixture();
+    const quote = await invoices.getFunction("getQuote")(1);
+    await (await invoices.getFunction("cancelInvoice")(1)).wait();
+    await assert.rejects(
+      invoices.getFunction("getQuote")(1),
+      /InvoiceIneligible/,
+    );
+    await assert.rejects(
+      invoices.getFunction("validateQuote")(Array.from(quote)),
+      /InvoiceIneligible/,
+    );
+  });
   it("expires at the window boundary and rejects fabricated deadlines or future windows", async () => {
     const { invoices } = await fixture();
     const quote = await invoices.getFunction("getQuote")(1);

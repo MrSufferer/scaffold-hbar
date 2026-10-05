@@ -35,9 +35,9 @@ export default function Deploy() {
         <dd className="code">{TESTNET_FEED}</dd>
       </dl>
       <p>
-        This creation/read contract cannot accept payments. Changing merchant,
-        feed or rules requires a fresh deployment; existing links stay attached
-        to their original contract.
+        This invoice contract cannot accept payments. Changing merchant, feed or
+        rules requires a fresh deployment; existing links stay attached to their
+        original contract.
       </p>
       <p>
         Verify the displayed feed address against current Chainlink

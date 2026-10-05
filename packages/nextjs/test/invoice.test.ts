@@ -7,7 +7,9 @@ import {
   formatUsd,
   formatExpiry,
 } from "../lib/invoice.ts";
-import { merchantSigner } from "../lib/wallet.ts";
+import { Interface } from "ethers";
+import { artifact } from "../lib/invoice.ts";
+import { confirmedCancellation, merchantSigner } from "../lib/wallet.ts";
 const address = "0x1111111111111111111111111111111111111111";
 test("a locator preserves its original deployment and validates supported identities", () => {
   assert.equal(
@@ -65,6 +67,27 @@ test("invoice expiry remains inspectable beyond JavaScript's date range", () => 
   assert.equal(
     formatExpiry("18446744073709551615"),
     "18446744073709551615 Unix seconds (outside the UTC date display range)",
+  );
+});
+
+test("cancellation confirmation requires the event for the original contract and invoice", () => {
+  const identity = invoiceIdentity("296", address, "2");
+  const abi = new Interface(artifact.abi);
+  const event = abi.encodeEventLog(abi.getEvent("InvoiceCancelled")!, [2n]);
+  const log = { address, ...event };
+  assert.doesNotThrow(() => confirmedCancellation([log], identity));
+  assert.throws(() => confirmedCancellation([], identity), /unknown/);
+  assert.throws(
+    () =>
+      confirmedCancellation(
+        [{ ...log, address: "0x2222222222222222222222222222222222222222" }],
+        identity,
+      ),
+    /unknown/,
+  );
+  assert.throws(
+    () => confirmedCancellation([log], { ...identity, invoiceId: "1" }),
+    /unknown/,
   );
 });
 

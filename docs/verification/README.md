@@ -39,3 +39,19 @@ npm run verify:template -- --report /tmp/hbar-invoices-public-default/report.jso
 ```
 
 This verifies the creation/read slice. The local EVM is not Hedera testnet; no live deployment, oracle verification, HBAR payment or settlement is claimed. Documentation-only revisions after the recorded implementation commit are checked separately at delivery.
+
+## October 5, 2026 cancellation and final states
+
+[Recorded results](2026-10-05-cancellation.json) cover implementation commit `11b7ceae4d175dd81b57d4227d7df04dbee9abd9` for [Cancel an unpaid invoice and show its final state](https://github.com/MrSufferer/scaffold-hbar/issues/13). Local-candidate, public-candidate and public-default runs passed with published CLI 0.4.1, Node 24.10.0 and npm 11.6.1. The record includes source refs, dates, generation commands, each stage and generated developer checks.
+
+Each clean generated project passed installation, formatting, typechecks, four gate regression tests, seven contract tests, seven frontend tests, lint, production build/boot and successful core-route responses. The production browser journey verifies merchant cancellation authorization, wrong network and wallet rejection, saved pending cancellation recovery after reload, wallet-free cancelled refresh/reload, no checkout for cancelled/expired states, before/at expiry, and failed-read clearing. Cancellation event tests reject wrong contracts and invoice IDs. The source manifest, packaging exclusions, two workspaces and generated cancellation guides also passed. The two-axis review found no standards violations or spec defects; one optional event-parsing cleanup was deferred.
+
+Commands used:
+
+```sh
+npm run verify:template -- --local --ref HEAD --report /tmp/hbar-invoices-local/report.json
+npm run verify:template -- --ref 11b7cea --report /tmp/hbar-invoices-candidate/report.json
+npm run verify:template -- --report /tmp/hbar-invoices-public-default/report.json
+```
+
+The contract change requires a fresh deployment; existing creation/read invoices retain their old contracts. These are source eligibility and generated operability results, using a simulated wallet and local EVM. Real MetaMask Hedera testnet cancellation, oracle health, payment and settlement remain unverified. The later evidence-only revision is checked separately at delivery.

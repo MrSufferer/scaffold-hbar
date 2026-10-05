@@ -28,7 +28,9 @@ export async function merchantSigner(wallet: MetaMask, expected?: string) {
     expected &&
     (await signer.getAddress()).toLowerCase() !== expected.toLowerCase()
   )
-    throw new Error("Only the deployed merchant account can create invoices.");
+    throw new Error(
+      "Only the deployed merchant account can administer invoices.",
+    );
   return { provider, signer };
 }
 export async function submitCreation(
@@ -44,7 +46,7 @@ export async function submitCreation(
     const merchant = await contract.getFunction("merchant")();
     if ((await signer.getAddress()).toLowerCase() !== merchant.toLowerCase())
       throw new Error(
-        "Only the deployed merchant account can create invoices.",
+        "Only the deployed merchant account can administer invoices.",
       );
     // Recheck context immediately before the wallet prompt. The contract enforces the signer.
     if ((await wallet.request({ method: "eth_chainId" })) !== "0x128")
@@ -134,5 +136,55 @@ export function walletMessage(error: unknown) {
     item.shortMessage ||
     item.message ||
     "Wallet operation unavailable. Check MetaMask and testnet RPC."
+  );
+}
+
+export async function submitCancellation(
+  wallet: MetaMask,
+  identity: InvoiceIdentity,
+  merchant: string,
+  onSubmitted: (transaction: string) => void,
+) {
+  const { provider, signer } = await merchantSigner(wallet, merchant);
+  try {
+    const contract = new Contract(identity.contract, artifact.abi, signer);
+    if ((await wallet.request({ method: "eth_chainId" })) !== "0x128")
+      throw new Error("Switch MetaMask to Hedera testnet (296).");
+    const tx = await contract.getFunction("cancelInvoice")(identity.invoiceId);
+    onSubmitted(tx.hash);
+    const receipt = await tx.wait(1, 60_000);
+    if (!receipt || receipt.status !== 1)
+      throw new Error(
+        "Cancellation outcome unknown. Check the original transaction.",
+      );
+    confirmedCancellation(receipt.logs, identity);
+  } finally {
+    provider.destroy();
+  }
+}
+export function confirmedCancellation(
+  logs: ReadonlyArray<{
+    address: string;
+    topics: ReadonlyArray<string>;
+    data: string;
+  }>,
+  identity: InvoiceIdentity,
+) {
+  const abi = new Interface(artifact.abi);
+  for (const log of logs) {
+    if (log.address.toLowerCase() !== identity.contract.toLowerCase()) continue;
+    try {
+      const event = abi.parseLog({ topics: [...log.topics], data: log.data });
+      if (
+        event?.name === "InvoiceCancelled" &&
+        event.args.invoiceId.toString() === identity.invoiceId
+      )
+        return;
+    } catch {
+      /* Other event. */
+    }
+  }
+  throw new Error(
+    "No matching confirmed InvoiceCancelled event. Cancellation outcome is unknown.",
   );
 }

@@ -1,6 +1,6 @@
-# Create and inspect an invoice
+# Create, inspect and cancel an invoice
 
-This slice delivers a single-merchant creation/read/quote contract and a MetaMask developer path on Hedera testnet (chain ID 296). It cannot cancel or accept payments. Adding those contract rules requires a fresh deployment; invoices in this deployment do not migrate. The fixed feed supplies contract-derived USD-reference quotes; read [quote review](invoice-quotes.md) before changing feed validation, conversion or deadline rules.
+This slice delivers a single-merchant creation/read/cancellation/quote contract and a MetaMask developer path on Hedera testnet (chain ID 296). It cannot accept payments. Cancellation requires this revision’s newly deployed contract; older creation/read deployments do not gain the method, and their invoices do not migrate. Adding payment rules will require another fresh deployment. The fixed feed supplies contract-derived USD-reference quotes; read [quote review](invoice-quotes.md) before changing feed validation, conversion or deadline rules.
 
 ## Generate and check
 
@@ -45,11 +45,21 @@ Open the link in a browser without MetaMask. It shows the original network, cont
 
 Expiries beyond the browser's UTC date range display their exact Unix seconds instead. The contract's full `uint64` expiry range remains inspectable.
 
-State is **Open** before expiry and **Expired** at or after expiry, derived by the contract from block time. Both terms and state are read at one block; the view displays that block and requires refresh to update. A missing invoice is identified separately from unavailable RPC/contract data. A failed refresh clears old state rather than presenting it as current. The link is a locator, not proof of merchant identity, fulfillment or trusted bytecode.
+An uncancelled invoice is **Open** before expiry and **Expired** at or after expiry, derived by the contract from block time. Explicit cancellation produces **Cancelled**, which stays cancelled even after expiry. Cancelled and expired views explain that the invoice is no longer payable and expose no checkout action. Both terms and state are read at one block; the view displays that block and requires refresh to update. A missing invoice is identified separately from unavailable RPC/contract data. A failed refresh clears old state rather than presenting it as current. The link is a locator, not proof of merchant identity, fulfillment or trusted bytecode.
+
+## Cancel a small invoice
+
+Create a second **1.25 USD** invoice with a future expiry, then open its shareable link with the fixed merchant selected in MetaMask. Under **Merchant administration**, choose **Cancel with MetaMask** and approve once. The action uses the link’s original contract and invoice ID, even if NEXT_PUBLIC_INVOICE_CONTRACT has changed. Network fees require test HBAR; no payment is sent.
+
+Expected result: the confirmed `InvoiceCancelled` event identifies that invoice; a fresh authoritative read shows **Cancelled**, preserving its original $1.25 USD amount, expiry and deployment identity. Open or refresh the same link in a wallet-free payer browser: it shows **Cancelled**, explains that it is no longer payable, and has no checkout action. Cancellation is permanent. An expired unpaid invoice may also be cancelled; cancellation takes precedence over time-derived expiry.
+
+A hash is pending submission. Its recovery record is stored separately for each original chain/contract/invoice. While pending, another cancellation is blocked. After reload, choose **Check cancellation transaction**. A successful receipt must contain the matching cancellation event from the original contract. A confirmed revert clears the pending record and refreshes state before another attempt; a missing receipt, mismatched event or failed RPC read keeps the outcome unknown and blocks retries. If saving recovery fails, retain the displayed hash and reconcile wallet activity before restarting. Clearing storage is not proof of failure.
+
+Only the merchant is authorized. The contract distinguishes unauthorized callers (`MerchantOnly`), nonexistent IDs (`InvoiceNotFound`) and repeated cancellation (`InvoiceAlreadyCancelled`). This revision has no settlement path; adding payment must also reject cancellation of settled invoices.
 
 ## Contract boundary
 
-`Invoices(address merchant, address feed)` fixes `merchant`, `recipient` (equal to merchant) and `feed`. `createInvoice(uint256 usdCents, uint64 expiresAt)` returns a sequential ID beginning at 1 and emits `InvoiceCreated(id, usdCents, expiresAt)`. `getInvoice(id)` returns cents, expiry and state (`0` Open, `1` Expired). Errors distinguish `InvalidIdentity`, `MerchantOnly`, `InvalidAmount`, `InvalidExpiry` and `InvoiceNotFound(id)`. The quote interface is documented in [quote review](invoice-quotes.md). There are no identity setters, personal-data fields, payable methods or payment success events in this slice.
+`Invoices(address merchant, address feed)` fixes `merchant`, `recipient` (equal to merchant) and `feed`. `createInvoice(uint256 usdCents, uint64 expiresAt)` returns a sequential ID beginning at 1 and emits `InvoiceCreated(id, usdCents, expiresAt)`. `getInvoice(id)` returns cents, expiry and state (`0` Open, `1` Expired, `2` Cancelled). `cancelInvoice(id)` records cancellation and emits `InvoiceCancelled(id)`. Errors distinguish `InvalidIdentity`, `MerchantOnly`, `InvalidAmount`, `InvalidExpiry`, `InvoiceNotFound(id)` and `InvoiceAlreadyCancelled(id)`. The quote interface is documented in [quote review](invoice-quotes.md). There are no identity setters, personal-data fields, payable methods or payment success events in this slice.
 
 ## Verify the generated journey
 
@@ -62,7 +72,7 @@ npx playwright install chromium
 npm run test:journey
 ```
 
-The journey uses the shipped deployment bytecode, real local contract calls, a disposable simulated MetaMask interface and a wallet-free second browser. It verifies deployment, wrong-network/unauthorized/rejected creation, pending reload recovery, invoice reads, nonexistent IDs, expiry, quote windows, exact upward rounding, invalid/stale/unavailable oracle reads and failed-read clearing. Its local EVM deliberately advertises chain 296 to exercise the app's network guard. That is a test fixture, not Hedera, and proves no live account control, oracle health, native-value conversion or payment. Local node logs contain public disposable test accounts; they are never live credentials or input to the source package.
+The journey uses the shipped deployment bytecode, real local contract calls, a disposable simulated MetaMask interface and a wallet-free second browser. It verifies deployment, wrong-network/unauthorized/rejected creation, pending reload recovery, invoice reads, cancellation authorization/wrong-network/rejection, cancellation recovery after reload, cancelled payer refresh/reload, nonexistent IDs, before/at expiry and failed-read clearing. Its local EVM deliberately advertises chain 296 to exercise the app's network guard. That is a test fixture, not Hedera, and proves no live account control, oracle health, native-value conversion or payment. Local node logs contain public disposable test accounts; they are never live credentials or input to the source package.
 
 ## Troubleshooting
 
@@ -71,6 +81,7 @@ The journey uses the shipped deployment bytecode, real local contract calls, a d
 - Invalid amount/expiry: use positive whole cents and a future time; consensus may reach expiry before the transaction confirms.
 - Wallet rejection: review and submit manually if desired; no automatic retry occurs.
 - Insufficient test HBAR: fund the merchant for network fees and inspect any submitted hash before retrying.
+- Unknown cancellation: check the saved original transaction; missing confirmation blocks retries. A cancelled state remains final.
 - Unknown creation/deployment: reconcile the original transaction first; timeout is not proof of failure.
 - Missing invoice: verify all three link identifiers and the confirmed creation event.
 - RPC/contract read unavailable: check the HTTPS endpoint, chain 296 and deployed interface, then refresh. No guessed invoice state is shown.

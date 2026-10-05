@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import CancelInvoice from "./CancelInvoice";
 import {
   formatExpiry,
   formatUsd,
@@ -109,7 +110,7 @@ export default function InvoiceDetails({
               </p>
             </>
           ) : (
-            <p role="status">
+            <p role="status" aria-label="Quote status">
               No quote:{" "}
               {expired
                 ? "The displayed quote expired. Refresh the invoice for a new quote."
@@ -120,9 +121,19 @@ export default function InvoiceDetails({
           )}
           <p className="notice">
             State reflects the last successful contract read. Refresh to check
-            again. This deployment supports creation, inspection and quoting;
-            payment and cancellation arrive in later slices.
+            again.{" "}
+            {view.state === "Open"
+              ? "Payment is not implemented in this deployment."
+              : "This invoice is no longer payable. Checkout is unavailable."}
           </p>
+          <CancelInvoice
+            key={invoicePath(view)}
+            view={view}
+            onConfirmed={() => {
+              setView(null);
+              setRevision((value) => value + 1);
+            }}
+          />
         </>
       )}
       <button
