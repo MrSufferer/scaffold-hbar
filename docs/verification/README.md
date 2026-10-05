@@ -55,3 +55,11 @@ npm run verify:template -- --report /tmp/hbar-invoices-public-default/report.jso
 ```
 
 The contract change requires a fresh deployment; existing creation/read invoices retain their old contracts. These are source eligibility and generated operability results, using a simulated wallet and local EVM. Real MetaMask Hedera testnet cancellation, oracle health, payment and settlement remain unverified. The later evidence-only revision is checked separately at delivery.
+
+## October 5, 2026 expiring quote review
+
+[Recorded results](2026-10-05-quotes.json) cover quote implementation commit `58bfa2508b80fe5a7605cc93962fb78822444ef0`, including integration with merchant cancellation. Local and public candidate generation passed all stages with published CLI 0.4.1, Node 24.10.0 and npm 11.6.1: install, formatting, typechecks, 28 tests, lint, build, production boot, core routes and the visible browser journey. Both review axes have no remaining findings.
+
+The journey covers exact and fractional quotes, expiry and consensus-window refresh, failed/invalid/stale feed clearing, recovery and cancellation. Network fees remain separately unavailable by user-approved scope; settlement must estimate them before approval. The separately recorded public default gate passed for the earlier cancellation revision and does not establish quote availability on main.
+
+These checks use a simulated wallet and disposable local EVM. They provide source eligibility and generated operability evidence, without claiming real Hedera deployment, oracle health, payment or settlement. The evidence-only revision is verified separately at delivery.
