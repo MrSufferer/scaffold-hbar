@@ -250,9 +250,7 @@ async function main() {
         chainId: 296,
         symbol: "HBAR",
       });
-      report.stage = "switch Hedera network";
-      save();
-      await wallet.switchNetwork("Hedera Testnet");
+      // dappwright addNetwork already switches to the newly added network.
       const page = await context.newPage();
       wallets.push({ wallet, page });
     }
