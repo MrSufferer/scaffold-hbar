@@ -1,0 +1,88 @@
+{
+  "status": "passed",
+  "date": "2026-10-05T04:34:40.718Z",
+  "sourceCommit": "7417838ce326595590c613a6eb46eb8100a87e1b",
+  "cliSourceCommit": "3c8fe60cf2aefd0f45594d5b589863556bb2a787",
+  "kind": "real-metamask-testnet",
+  "contract": "0x3467c4A13171B1216691D37B2C3E69d05133E9e8",
+  "chainId": 296,
+  "dappwright": "2.13.12",
+  "metamask": "13.17.0",
+  "cliEvidence": "2026-10-05-testnet-cli.json",
+  "creationReconciliation": "Matched saved original invoice/hash and authoritative creation receipt",
+  "resumedCreation": {
+    "hash": "0xdfda562f5c51b9b5b1b77af92d4e39428ea118e23a9bf42a567a2e033479ab12",
+    "block": 41374495,
+    "invoicePath": "/invoice/296/0x3467c4A13171B1216691D37B2C3E69d05133E9e8/3"
+  },
+  "invoicePath": "/invoice/296/0x3467c4A13171B1216691D37B2C3E69d05133E9e8/3",
+  "signingIntent": "merchant cancellation requested",
+  "stage": "merchant cancellation",
+  "chromium": "141.0.7390.37",
+  "creations": [
+    {
+      "invoicePath": "/invoice/296/0x3467c4A13171B1216691D37B2C3E69d05133E9e8/4",
+      "hash": "0x54dcb7f10d3f9c3845552f750fa3fdda2faff02565cc2b13f8697c0e1a7a5552",
+      "block": 41374923
+    }
+  ],
+  "approvedAmountTinybars": "1215433438",
+  "approvedRound": "18446744073709596754",
+  "review": "PUBLIC INVOICE\n\nInspect invoice 3\n\nNo wallet or payer account is needed. This link locates an invoice; it does not authenticate the merchant.\n\nNetwork\nHedera testnet \u00b7 chain ID 296\nContract from this link\n0x3467c4A13171B1216691D37B2C3E69d05133E9e8\nInvoice ID\n3\n\nCONTRACT STATE \u00b7 BLOCK 41374910\n\nOpen\nUSD amount\n$1.25 USD\nImmutable expiry (UTC)\n2026-10-05T05:21:00.000Z\nMerchant\n0xeD37FD0d6F0f69236E7472B36796e133D20EcC32\nRecipient\n0xeD37FD0d6F0f69236E7472B36796e133D20EcC32\nFixed HBAR/USD feed\n0x59bC155EB6c6C415fE43255aF66EcF0523c92B4a\nReference-price quote\nExact invoice payment\n12.15433438 HBAR\nExact tinybars\n1215433438\nOracle round\n18446744073709596754\nReference price updated (UTC)\n2026-10-05T04:32:39.000Z\nReference-price age at read\n207 seconds\nQuote deadline (UTC, exclusive)\n2026-10-05T04:40:00.000Z\nEstimated network fees (separate)\nEstimate the actual payment transaction below before approval. Network fees are additional to the exact invoice payment.\n\nThis is an oracle reference price, not a live spot guarantee. Quotes last at most five minutes and may expire sooner. A new round or window requires a new quote and explicit approval before payment.\n\nState reflects the last successful contract read. Refresh to check again. Review the quote and estimate the network fee before explicit payment approval.\n\nMerchant administration\n\nOnly the fixed merchant can cancel this unpaid invoice. Cancellation is permanent; MetaMask requests approval and test HBAR network fees.\n\nCancel with MetaMask\n\nPay exact reviewed quote\n\nEstimate the payment transaction fee, then explicitly approve the exact quote. MetaMask shows the final network fee separately.\n\nEstimate payment network fee\nExact approved payment\n12.15433438 HBAR\nApproved oracle round\n18446744073709596754\nApproval deadline (UTC, exclusive)\n2026-10-05T04:40:00.000Z\nPayer\n0x00F5089ed5A3192cE8f8Ceb6a9c72ae04CC5F794\nEstimated network fee (separate, gas limit \u00d7 gas price)\n0.1374739 HBAR\nApprove exact quote and pay with MetaMask\n\nRefresh invoice",
+  "paymentUrl": "https://hashscan.io/testnet/transaction/0x1dddaa3183b7ede6535ea334fb2918be50829996be3a26beab708e2908de64f0",
+  "merchantDeltaWeibars": "12154334380000000000",
+  "paymentBlock": 41374915,
+  "lastCreatedInvoicePath": "/invoice/296/0x3467c4A13171B1216691D37B2C3E69d05133E9e8/4",
+  "cancelledInvoicePath": "/invoice/296/0x3467c4A13171B1216691D37B2C3E69d05133E9e8/4",
+  "cancellationHash": "0x122dcffa294f7ff2de43659a6c64a93f425dd04a1e51f66f5eac1e01eca9934a",
+  "cancellationBlock": 41374929,
+  "priorAttempts": [
+    {
+      "date": "2026-10-05T04:20:18.375Z",
+      "status": "failed",
+      "stage": "merchant creation",
+      "signingIntent": "merchant transaction requested"
+    },
+    {
+      "date": "2026-10-05T04:27:34.927Z",
+      "status": "failed",
+      "stage": "payer connection",
+      "invoicePath": "/invoice/296/0x3467c4A13171B1216691D37B2C3E69d05133E9e8/3"
+    },
+    {
+      "date": "2026-10-05T04:30:48.003Z",
+      "status": "failed",
+      "stage": "payer fee estimation",
+      "signingIntent": "merchant transaction requested",
+      "invoicePath": "/invoice/296/0x3467c4A13171B1216691D37B2C3E69d05133E9e8/3",
+      "failureFrames": [
+        "    at main (/Users/kyler/repos/hedera-scaffold/packages/hardhat/scripts/metamask-checkout.ts:336:8)"
+      ]
+    },
+    {
+      "date": "2026-10-05T04:33:07.767Z",
+      "status": "failed",
+      "stage": "switch Hedera network",
+      "signingIntent": "merchant transaction requested",
+      "invoicePath": "/invoice/296/0x3467c4A13171B1216691D37B2C3E69d05133E9e8/3",
+      "failureFrames": [
+        "    at async main (/Users/kyler/repos/hedera-scaffold/packages/hardhat/scripts/metamask-checkout.ts:255:7)"
+      ]
+    }
+  ],
+  "runnerCommit": "c754a303e309f122a95383f3422ca321ddbccd6e",
+  "profileCleanup": "Both isolated contexts closed and owned profiles deleted after success",
+  "generatedChecks": {
+    "cli": "create-scaffold-hbar 0.4.1",
+    "sourceCommit": "7417838ce326595590c613a6eb46eb8100a87e1b",
+    "install": "passed",
+    "format": "passed",
+    "typecheck": "passed",
+    "test": "passed",
+    "lint": "passed",
+    "build": "passed",
+    "productionBoot": "passed",
+    "appUrl": "http://localhost:3019",
+    "network": "Real Hedera testnet RPC, no simulated provider or conversion"
+  }
+}

@@ -1,0 +1,328 @@
+{
+  "localRunner": {
+    "source": "MrSufferer/scaffold-hbar",
+    "requestedRef": "HEAD",
+    "sourceCommit": "c754a303e309f122a95383f3422ca321ddbccd6e",
+    "mode": "local-candidate",
+    "node": "v24.10.0",
+    "npm": "11.6.1",
+    "cli": "0.4.1",
+    "date": "2026-10-05T04:35:49.502Z",
+    "status": "passed",
+    "stages": [
+      {
+        "name": "runtime",
+        "status": "passed",
+        "error": ""
+      },
+      {
+        "name": "export-source",
+        "status": "passed",
+        "error": ""
+      },
+      {
+        "name": "source-manifest-and-packaging",
+        "status": "passed",
+        "error": ""
+      },
+      {
+        "name": "published-generation",
+        "status": "passed",
+        "command": [
+          "npm",
+          "create",
+          "scaffold-hbar@latest",
+          "--",
+          "generated",
+          "--template",
+          "MrSufferer/scaffold-hbar",
+          "--frontend",
+          "nextjs-app",
+          "--solidity-framework",
+          "hardhat",
+          "--package-manager",
+          "npm",
+          "--network",
+          "testnet",
+          "--skip-install",
+          "--skip-hedera-skills",
+          "--yes"
+        ],
+        "error": ""
+      },
+      {
+        "name": "generated-artifacts",
+        "status": "passed",
+        "error": ""
+      },
+      {
+        "name": "generated-checks",
+        "status": "passed",
+        "error": ""
+      },
+      {
+        "name": "production-boot",
+        "status": "passed",
+        "command": [
+          "npm",
+          "run",
+          "start",
+          "--",
+          "--hostname",
+          "127.0.0.1",
+          "--port",
+          "64876"
+        ],
+        "error": ""
+      },
+      {
+        "name": "HTTP /",
+        "status": "passed"
+      },
+      {
+        "name": "HTTP /setup",
+        "status": "passed"
+      },
+      {
+        "name": "HTTP /merchant",
+        "status": "passed"
+      },
+      {
+        "name": "HTTP /deploy",
+        "status": "passed"
+      },
+      {
+        "name": "HTTP /invoice/296/0x1111111111111111111111111111111111111111/1",
+        "status": "passed"
+      },
+      {
+        "name": "generated-invoice-journey",
+        "status": "passed",
+        "command": [
+          "npm exec playwright -- install chromium",
+          "npm run test:journey"
+        ],
+        "error": ""
+      }
+    ]
+  },
+  "publicBrowserCandidate": {
+    "source": "MrSufferer/scaffold-hbar",
+    "requestedRef": "7417838ce326595590c613a6eb46eb8100a87e1b",
+    "sourceCommit": "7417838ce326595590c613a6eb46eb8100a87e1b",
+    "mode": "public-candidate",
+    "node": "v24.10.0",
+    "npm": "11.6.1",
+    "cli": "0.4.1",
+    "date": "2026-10-05T04:38:35.402Z",
+    "status": "passed",
+    "stages": [
+      {
+        "name": "runtime",
+        "status": "passed",
+        "error": ""
+      },
+      {
+        "name": "export-source",
+        "status": "passed",
+        "error": ""
+      },
+      {
+        "name": "source-manifest-and-packaging",
+        "status": "passed",
+        "error": ""
+      },
+      {
+        "name": "published-generation",
+        "status": "passed",
+        "command": [
+          "npm",
+          "create",
+          "scaffold-hbar@latest",
+          "--",
+          "generated",
+          "--template",
+          "MrSufferer/scaffold-hbar#7417838ce326595590c613a6eb46eb8100a87e1b",
+          "--frontend",
+          "nextjs-app",
+          "--solidity-framework",
+          "hardhat",
+          "--package-manager",
+          "npm",
+          "--network",
+          "testnet",
+          "--skip-install",
+          "--skip-hedera-skills",
+          "--yes"
+        ],
+        "error": ""
+      },
+      {
+        "name": "generated-artifacts",
+        "status": "passed",
+        "error": ""
+      },
+      {
+        "name": "generated-checks",
+        "status": "passed",
+        "error": ""
+      },
+      {
+        "name": "production-boot",
+        "status": "passed",
+        "command": [
+          "npm",
+          "run",
+          "start",
+          "--",
+          "--hostname",
+          "127.0.0.1",
+          "--port",
+          "65135"
+        ],
+        "error": ""
+      },
+      {
+        "name": "HTTP /",
+        "status": "passed"
+      },
+      {
+        "name": "HTTP /setup",
+        "status": "passed"
+      },
+      {
+        "name": "HTTP /merchant",
+        "status": "passed"
+      },
+      {
+        "name": "HTTP /deploy",
+        "status": "passed"
+      },
+      {
+        "name": "HTTP /invoice/296/0x1111111111111111111111111111111111111111/1",
+        "status": "passed"
+      },
+      {
+        "name": "generated-invoice-journey",
+        "status": "passed",
+        "command": [
+          "npm exec playwright -- install chromium",
+          "npm run test:journey"
+        ],
+        "error": ""
+      }
+    ]
+  },
+  "publicDefault": {
+    "source": "MrSufferer/scaffold-hbar",
+    "requestedRef": "public-default",
+    "sourceCommit": "3c3937b30e4aaa848f9ee2044ecd91c857384326",
+    "mode": "public-default",
+    "node": "v24.10.0",
+    "npm": "11.6.1",
+    "cli": "0.4.1",
+    "date": "2026-10-05T04:38:05.717Z",
+    "status": "passed",
+    "stages": [
+      {
+        "name": "runtime",
+        "status": "passed",
+        "error": ""
+      },
+      {
+        "name": "export-source",
+        "status": "passed",
+        "error": ""
+      },
+      {
+        "name": "source-manifest-and-packaging",
+        "status": "passed",
+        "error": ""
+      },
+      {
+        "name": "published-generation",
+        "status": "passed",
+        "command": [
+          "npm",
+          "create",
+          "scaffold-hbar@latest",
+          "--",
+          "generated",
+          "--template",
+          "MrSufferer/scaffold-hbar",
+          "--frontend",
+          "nextjs-app",
+          "--solidity-framework",
+          "hardhat",
+          "--package-manager",
+          "npm",
+          "--network",
+          "testnet",
+          "--skip-install",
+          "--skip-hedera-skills",
+          "--yes"
+        ],
+        "error": ""
+      },
+      {
+        "name": "generated-artifacts",
+        "status": "passed",
+        "error": ""
+      },
+      {
+        "name": "generated-checks",
+        "status": "passed",
+        "error": ""
+      },
+      {
+        "name": "production-boot",
+        "status": "passed",
+        "command": [
+          "npm",
+          "run",
+          "start",
+          "--",
+          "--hostname",
+          "127.0.0.1",
+          "--port",
+          "65034"
+        ],
+        "error": ""
+      },
+      {
+        "name": "HTTP /",
+        "status": "passed"
+      },
+      {
+        "name": "HTTP /setup",
+        "status": "passed"
+      },
+      {
+        "name": "HTTP /merchant",
+        "status": "passed"
+      },
+      {
+        "name": "HTTP /deploy",
+        "status": "passed"
+      },
+      {
+        "name": "HTTP /invoice/296/0x1111111111111111111111111111111111111111/1",
+        "status": "passed"
+      },
+      {
+        "name": "generated-invoice-journey",
+        "status": "passed",
+        "command": [
+          "npm exec playwright -- install chromium",
+          "npm run test:journey"
+        ],
+        "error": ""
+      },
+      {
+        "name": "default-ref-stability",
+        "status": "passed",
+        "error": ""
+      }
+    ]
+  }
+}
