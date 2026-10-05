@@ -23,3 +23,19 @@ npm run verify:template -- --report /tmp/hbar-invoices-public-default/report.jso
 Playwright inspection covered the landing-to-setup link, 1440px desktop and 375px mobile layouts; mobile document width equalled viewport width. The two-axis review against d539a8a found no unresolved standards or implementation findings after fixes. Concurrent prerequisite research and private tooling were excluded from implementation review.
 
 These reports cover the baseline revision above. Re-run this gate after subsequent slices and during the final audit. No invoice deployment, wallet transaction, live oracle verification or settlement was performed here. Dependency installation reports inherited transitive audit findings; this baseline is not a security audit.
+
+## October 5, 2026 invoice creation and inspection
+
+[Recorded results](2026-10-05.json) cover implementation commit `b465570ca35212f99b888d8c6a87af13e86a4509` for [Create and inspect an invoice from the generated template](https://github.com/MrSufferer/scaffold-hbar/issues/12). Local-candidate, public-candidate and public-default runs passed with CLI 0.4.1, Node 24.10.0 and npm 11.6.1. Each record includes generation commands, stages and the generated project's developer checks.
+
+The extended gate checks production routes and runs Chromium against the production generated app with a simulated MetaMask interface and a real local EVM. It deploys shipped bytecode, creates and recovers an invoice, inspects it without a wallet, and checks wrong network/account, wallet rejection, nonexistent IDs, exact expiry, maximum uint64 expiry and failed-read clearing. Contract tests cover authorization, immutable identity/terms, sequential IDs, invalid inputs and missing invoices. Both Standards and Spec reviews have no remaining findings after the expiry display fix.
+
+Commands used:
+
+```sh
+npm run verify:template -- --local --ref HEAD --report /tmp/hbar-invoices-local/report.json
+npm run verify:template -- --ref b465570ca35212f99b888d8c6a87af13e86a4509 --report /tmp/hbar-invoices-candidate/report.json
+npm run verify:template -- --report /tmp/hbar-invoices-public-default/report.json
+```
+
+This verifies the creation/read slice. The local EVM is not Hedera testnet; no live deployment, oracle verification, HBAR payment or settlement is claimed. Documentation-only revisions after the recorded implementation commit are checked separately at delivery.

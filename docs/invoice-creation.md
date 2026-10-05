@@ -43,6 +43,8 @@ If the page reloads after submission, choose **Check creation transaction**. An 
 
 Open the link in a browser without MetaMask. It shows the original network, contract and invoice ID, then reads immutable USD cents, expiry in UTC, merchant, recipient, feed and current state from that contract. The configured merchant contract does not override a link's contract. No payer account, customer profile or personal information is required.
 
+Expiries beyond the browser's UTC date range display their exact Unix seconds instead. The contract's full `uint64` expiry range remains inspectable.
+
 State is **Open** before expiry and **Expired** at or after expiry, derived by the contract from block time. Both terms and state are read at one block; the view displays that block and requires refresh to update. A missing invoice is identified separately from unavailable RPC/contract data. A failed refresh clears old state rather than presenting it as current. The link is a locator, not proof of merchant identity, fulfillment or trusted bytecode.
 
 ## Contract boundary
