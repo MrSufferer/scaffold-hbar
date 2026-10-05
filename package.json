@@ -25,11 +25,14 @@
     "hardhat:test": "npm run test -w @sh/hardhat",
     "format": "prettier --write packages scripts docs README.md AGENTS.md brand.md package.json",
     "contract:export": "npm run hardhat:compile && node scripts/export-invoice.mjs",
-    "test:journey": "node scripts/invoice-journey.mjs"
+    "test:journey": "node scripts/invoice-journey.mjs",
+    "test:testnet:cli": "npm run test:testnet:cli -w @sh/hardhat",
+    "test:testnet:metamask": "npm run test:testnet:metamask -w @sh/hardhat"
   },
   "devDependencies": {
     "@eslint/js": "9.39.1",
     "@playwright/test": "1.56.1",
+    "@tenkeylabs/dappwright": "2.13.12",
     "@types/node": "24.10.0",
     "create-scaffold-hbar": "0.4.1",
     "eslint": "9.39.1",

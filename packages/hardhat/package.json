@@ -6,7 +6,9 @@
     "compile": "hardhat compile",
     "test": "hardhat test",
     "check-types": "tsc --noEmit",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test:testnet:cli": "node --env-file=../../.env node_modules/hardhat/internal/cli/cli.js run scripts/testnet-checkout.ts --network hederaTestnet",
+    "test:testnet:metamask": "node --env-file=../../.env -r ts-node/register scripts/metamask-checkout.ts"
   },
   "devDependencies": {
     "hardhat": "2.22.19",
