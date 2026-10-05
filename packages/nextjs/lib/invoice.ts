@@ -4,6 +4,7 @@ import {
   JsonRpcProvider,
   isAddress,
   ZeroAddress,
+  isError,
 } from "ethers";
 import artifact from "./invoice-artifact.json" with { type: "json" };
 export const TESTNET_CHAIN = 296;
@@ -14,6 +15,19 @@ export type InvoiceIdentity = {
   contract: string;
   invoiceId: string;
 };
+export type InvoiceQuote = {
+  invoiceId: string;
+  roundId: string;
+  amountTinybars: string;
+  deadline: string;
+  window: string;
+  priceUpdatedAt: string;
+  price: string;
+  feedDecimals: number;
+};
+export type QuoteResult =
+  | { status: "available"; quote: InvoiceQuote }
+  | { status: "unavailable"; reason: string };
 export type InvoiceView = InvoiceIdentity & {
   merchant: string;
   recipient: string;
@@ -22,6 +36,8 @@ export type InvoiceView = InvoiceIdentity & {
   expiresAt: string;
   state: "Open" | "Expired";
   blockNumber: number;
+  blockTimestamp: string;
+  quoteResult: QuoteResult;
 };
 export function invoiceIdentity(
   chain: string,
@@ -62,6 +78,34 @@ export function formatUsd(cents: string) {
   const value = BigInt(cents);
   return `$${(value / 100n).toLocaleString("en-US")}.${(value % 100n).toString().padStart(2, "0")} USD`;
 }
+// Exact payment display: preserve every tinybar, including above Number.MAX_SAFE_INTEGER.
+export function formatHbar(tinybars: string) {
+  const value = BigInt(tinybars);
+  return `${(value / 100000000n).toLocaleString("en-US")}.${(value % 100000000n).toString().padStart(8, "0")} HBAR`;
+}
+
+function quoteReadError(error: unknown): string {
+  const name = isError(error, "CALL_EXCEPTION")
+    ? error.revert?.name
+    : undefined;
+  switch (name) {
+    case "StalePrice":
+      return "Reference price is older than 24 hours. Wait for a feed update, then refresh.";
+    case "InvalidPrice":
+    case "IncompleteRound":
+    case "InvalidPriceTimestamp":
+      return "The feed returned an invalid or incomplete reference price. Wait for valid feed data, then refresh.";
+    case "UnsupportedFeedDecimals":
+      return "Feed decimals are unsupported. Verify the fixed feed and deploy a compatible contract.";
+    case "QuoteAmountOutOfRange":
+      return "The invoice amount cannot be represented safely in tinybars. Ask the merchant for a smaller invoice.";
+    case "InvoiceIneligible":
+      return "This invoice is no longer payable. Ask the merchant for a new invoice.";
+    default:
+      return "Quote read unavailable. Check the testnet RPC, deployed quote interface and fixed feed; refresh to retry.";
+  }
+}
+
 export function publicProvider(rpc: string) {
   const request = new FetchRequest(rpc);
   request.timeout = 10_000;
@@ -88,6 +132,53 @@ export async function readInvoice(
     const state = Number(invoice[2]);
     if (state !== 0 && state !== 1)
       throw new Error("Unsupported contract lifecycle version.");
+    let quoteResult: QuoteResult;
+    if (state !== 0) {
+      quoteResult = {
+        status: "unavailable",
+        reason:
+          "This invoice is no longer payable. Ask the merchant for a new invoice.",
+      };
+    } else if (feed.toLowerCase() !== TESTNET_FEED.toLowerCase()) {
+      quoteResult = {
+        status: "unavailable",
+        reason:
+          "This deployment does not use the fixed testnet HBAR/USD feed. Verify the invoice contract with the merchant.",
+      };
+    } else {
+      try {
+        const quote = await contract.getFunction("getQuote")(
+          identity.invoiceId,
+          at,
+        );
+        if (
+          quote.invoiceId !== BigInt(identity.invoiceId) ||
+          quote.deadline <= BigInt(block.timestamp)
+        ) {
+          quoteResult = {
+            status: "unavailable",
+            reason:
+              "The quote has no remaining lifetime. Wait for a feed update and refresh.",
+          };
+        } else {
+          quoteResult = {
+            status: "available",
+            quote: {
+              invoiceId: quote.invoiceId.toString(),
+              roundId: quote.roundId.toString(),
+              amountTinybars: quote.amountTinybars.toString(),
+              deadline: quote.deadline.toString(),
+              window: quote.window.toString(),
+              priceUpdatedAt: quote.priceUpdatedAt.toString(),
+              price: quote.price.toString(),
+              feedDecimals: Number(quote.feedDecimals),
+            },
+          };
+        }
+      } catch (error) {
+        quoteResult = { status: "unavailable", reason: quoteReadError(error) };
+      }
+    }
     return {
       ...identity,
       merchant,
@@ -97,6 +188,8 @@ export async function readInvoice(
       expiresAt: invoice[1].toString(),
       state: state === 0 ? "Open" : "Expired",
       blockNumber: block.number,
+      blockTimestamp: block.timestamp.toString(),
+      quoteResult,
     };
   } finally {
     provider.destroy();

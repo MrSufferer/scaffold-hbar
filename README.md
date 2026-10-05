@@ -1,6 +1,6 @@
 # HBAR Invoices
 
-An MIT external scaffold-hbar template for USD-reference invoices paid in HBAR on Hedera testnet. The template includes immutable single-merchant invoice creation, wallet-free inspection and a repeatable clean-generation gate. MetaMask deployment and creation are available; quoting, cancellation and payment follow in later slices. No live testnet deployment or settlement is claimed by local checks.
+An MIT external scaffold-hbar template for USD-reference invoices paid in HBAR on Hedera testnet. The template includes immutable single-merchant invoice creation, wallet-free inspection and a repeatable clean-generation gate. MetaMask deployment and creation are available; contract-derived quote review is available; cancellation and payment follow in later slices. No live testnet deployment or settlement is claimed by local checks.
 
 ## Supported stack
 
@@ -68,4 +68,4 @@ Reports record source ref/commit, date, CLI/Node/npm versions, commands and per-
 - A setup warning: supply a public HTTPS RPC and, after deployment, a nonzero EVM contract address. Neither setting verifies live readiness.
 - An RPC error or unavailable funding: resolve testnet prerequisites before wallet submission. Local checks remain usable.
 
-Keep the contracts in packages/hardhat and frontend in packages/nextjs. Reuse this gate after every invoice slice. The agreed application uses a load-bearing HBAR/USD oracle: removing it would change the invoice's USD-reference pricing purpose. Later lifecycle, exact quote approval, atomic delivery and transaction recovery must remain contract-authoritative. This educational template has no mainnet, production-security, fulfillment or bounty-eligibility guarantee.
+Keep the contracts in packages/hardhat and frontend in packages/nextjs. Reuse this gate after every invoice slice. See [quote review](docs/invoice-quotes.md) for pricing, deadline and no-quote behavior. The agreed application uses a load-bearing HBAR/USD oracle: removing it would change the invoice's USD-reference pricing purpose. Later lifecycle, exact quote approval, atomic delivery and transaction recovery must remain contract-authoritative. This educational template has no mainnet, production-security, fulfillment or bounty-eligibility guarantee.

@@ -182,6 +182,39 @@ try {
       "utf8",
     ),
   );
+  // Install a controllable local oracle at the real feed locator. Never live feed evidence.
+  const feedArtifact = JSON.parse(
+    readFileSync(
+      path.join(
+        root,
+        "packages/hardhat/artifacts/contracts/MockPriceFeed.sol/MockPriceFeed.json",
+      ),
+      "utf8",
+    ),
+  );
+  const feedAddress = "0x59bC155EB6c6C415fE43255aF66EcF0523c92B4a";
+  const feedInterface = new Interface(feedArtifact.abi);
+  await rpc("hardhat_setCode", [feedAddress, feedArtifact.deployedBytecode]);
+  async function setFeed(
+    /** @type {string} */ method,
+    /** @type {unknown[]} */ args,
+  ) {
+    const hash = await rpc("eth_sendTransaction", [
+      {
+        from: accounts[0],
+        to: feedAddress,
+        data: feedInterface.encodeFunctionData(method, args),
+      },
+    ]);
+    assert.equal(
+      (await rpc("eth_getTransactionReceipt", [hash])).status,
+      "0x1",
+    );
+  }
+  const feedBlock = await rpc("eth_getBlockByNumber", ["latest", false]);
+  const feedTime = Number(BigInt(feedBlock.timestamp));
+  await setFeed("setDecimals", [8]);
+  await setFeed("setRound", [7, 10000000, feedTime, feedTime, 7]);
   // The browser must deploy the shipped bytecode, then create through the shipped UI.
   const base = `http://127.0.0.1:${webPort}`;
   start(
@@ -348,6 +381,83 @@ try {
     "0x59bc155eb6c6c415fe43255af66ecf0523c92b4a",
   );
   assert.equal(view.usdCents, "125");
+  assert.equal(view.quoteResult.status, "available");
+  assert.equal(view.quoteResult.quote.amountTinybars, "1250000000");
+  assert.equal(view.quoteResult.quote.roundId, "7");
+  await expect(
+    publicPage.getByText("12.50000000 HBAR", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    publicPage.getByText("Oracle round", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    publicPage.getByText("Estimated network fees (separate)", { exact: true }),
+  ).toBeVisible();
+  await expect(publicPage.getByText(/not a live spot guarantee/)).toBeVisible();
+  // Consensus expiry cannot be extended by refreshing the old quote context.
+  const quoteDeadline = Number(view.quoteResult.quote.deadline);
+  await publicPage.evaluate((deadline) => {
+    Date.now = () => deadline * 1000;
+  }, quoteDeadline);
+  await expect(publicPage.getByRole("status")).toContainText(
+    "displayed quote expired",
+  );
+  await expect(
+    publicPage.getByText("12.50000000 HBAR", { exact: true }),
+  ).toHaveCount(0);
+  await publicPage.reload();
+  await expect(
+    publicPage.getByText("12.50000000 HBAR", { exact: true }),
+  ).toBeVisible();
+  await rpc("evm_setNextBlockTimestamp", [quoteDeadline]);
+  await rpc("evm_mine");
+  await publicPage.getByRole("button", { name: "Refresh invoice" }).click();
+  await expect
+    .poll(async () => {
+      const refreshed = await (await fetch(`${base}/api${locator}`)).json();
+      return Number(refreshed.quoteResult.quote?.deadline);
+    })
+    .toBeGreaterThan(quoteDeadline);
+  // No wallet, fallback price or stale successful quote survives a failed oracle read.
+  await setFeed("setFailures", [true, false]);
+  await publicPage.getByRole("button", { name: "Refresh invoice" }).click();
+  await expect(publicPage.getByRole("status")).toContainText(
+    "Quote read unavailable",
+  );
+  await expect(
+    publicPage.getByText("12.50000000 HBAR", { exact: true }),
+  ).toHaveCount(0);
+  await expect(
+    publicPage.getByRole("heading", { name: "Open", exact: true }),
+  ).toBeVisible();
+  await setFeed("setFailures", [false, false]);
+  await setFeed("setRound", [8, 0, feedTime, feedTime, 8]);
+  await publicPage.getByRole("button", { name: "Refresh invoice" }).click();
+  await expect(publicPage.getByRole("status")).toContainText(
+    "invalid or incomplete",
+  );
+  await setFeed("setRound", [
+    9,
+    10000000,
+    feedTime - 86401,
+    feedTime - 86401,
+    9,
+  ]);
+  await publicPage.getByRole("button", { name: "Refresh invoice" }).click();
+  await expect(publicPage.getByRole("status")).toContainText(
+    "older than 24 hours",
+  );
+  const freshBlock = await rpc("eth_getBlockByNumber", ["latest", false]);
+  const freshTime = Number(BigInt(freshBlock.timestamp));
+  await setFeed("setRound", [10, 300000000, freshTime, freshTime, 10]);
+  await publicPage.getByRole("button", { name: "Refresh invoice" }).click();
+  await expect(
+    publicPage.getByText("0.41666667 HBAR", { exact: true }),
+  ).toBeVisible();
+  const fractional = await (await fetch(`${base}/api${locator}`)).json();
+  assert.equal(fractional.quoteResult.quote.roundId, "10");
+  assert.equal(fractional.quoteResult.quote.amountTinybars, "41666667");
+
   await rpc("eth_sendTransaction", [
     {
       from: accounts[0],
@@ -400,7 +510,7 @@ try {
     publicPage.getByRole("heading", { name: "Expired", exact: true }),
   ).toHaveCount(0);
   console.log(
-    "PASS local creation/read journey: browser deployment, merchant authorization, wrong network, wallet rejection, pending reload, wallet-free read, nonexistent invoice, expiry, failed-read clearing. Simulated wallet/local EVM only; no testnet deployment or payment evidence.",
+    "PASS local creation/read/quote journey: browser deployment, merchant authorization, wrong network, wallet rejection, pending reload, wallet-free exact/fractional quote review, separate fee-unavailable state, display expiry, consensus window refresh, failed/invalid/stale feed clearing and recovery, nonexistent invoice, expiry, failed-read clearing. Simulated wallet/local EVM only; no testnet deployment or payment evidence.",
   );
 } finally {
   await cleanup();

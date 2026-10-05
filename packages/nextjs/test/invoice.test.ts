@@ -67,3 +67,13 @@ test("invoice expiry remains inspectable beyond JavaScript's date range", () => 
     "18446744073709551615 Unix seconds (outside the UTC date display range)",
   );
 });
+
+test("exact HBAR review retains every tinybar without floating-point loss", async () => {
+  const { formatHbar } = await import("../lib/invoice.ts");
+  assert.equal(formatHbar("1"), "0.00000001 HBAR");
+  assert.equal(formatHbar("1250000000"), "12.50000000 HBAR");
+  assert.equal(
+    formatHbar("9223372036854775807"),
+    "92,233,720,368.54775807 HBAR",
+  );
+});

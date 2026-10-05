@@ -1,6 +1,6 @@
 # Create and inspect an invoice
 
-This slice delivers a single-merchant creation/read contract and a MetaMask developer path on Hedera testnet (chain ID 296). It cannot quote, cancel or accept payments. Adding those contract rules requires a fresh deployment; invoices in this deployment do not migrate. The fixed feed identity preserves the planned USD-reference integration, but this slice does not use oracle prices or validate oracle freshness.
+This slice delivers a single-merchant creation/read/quote contract and a MetaMask developer path on Hedera testnet (chain ID 296). It cannot cancel or accept payments. Adding those contract rules requires a fresh deployment; invoices in this deployment do not migrate. The fixed feed supplies contract-derived USD-reference quotes; read [quote review](invoice-quotes.md) before changing feed validation, conversion or deadline rules.
 
 ## Generate and check
 
@@ -49,7 +49,7 @@ State is **Open** before expiry and **Expired** at or after expiry, derived by t
 
 ## Contract boundary
 
-`Invoices(address merchant, address feed)` fixes `merchant`, `recipient` (equal to merchant) and `feed`. `createInvoice(uint256 usdCents, uint64 expiresAt)` returns a sequential ID beginning at 1 and emits `InvoiceCreated(id, usdCents, expiresAt)`. `getInvoice(id)` returns cents, expiry and state (`0` Open, `1` Expired). Errors distinguish `InvalidIdentity`, `MerchantOnly`, `InvalidAmount`, `InvalidExpiry` and `InvoiceNotFound(id)`. There are no identity setters, personal-data fields, payable methods or payment success events in this slice.
+`Invoices(address merchant, address feed)` fixes `merchant`, `recipient` (equal to merchant) and `feed`. `createInvoice(uint256 usdCents, uint64 expiresAt)` returns a sequential ID beginning at 1 and emits `InvoiceCreated(id, usdCents, expiresAt)`. `getInvoice(id)` returns cents, expiry and state (`0` Open, `1` Expired). Errors distinguish `InvalidIdentity`, `MerchantOnly`, `InvalidAmount`, `InvalidExpiry` and `InvoiceNotFound(id)`. The quote interface is documented in [quote review](invoice-quotes.md). There are no identity setters, personal-data fields, payable methods or payment success events in this slice.
 
 ## Verify the generated journey
 
@@ -62,7 +62,7 @@ npx playwright install chromium
 npm run test:journey
 ```
 
-The journey uses the shipped deployment bytecode, real local contract calls, a disposable simulated MetaMask interface and a wallet-free second browser. It verifies deployment, wrong-network/unauthorized/rejected creation, pending reload recovery, invoice reads, nonexistent IDs, expiry and failed-read clearing. Its local EVM deliberately advertises chain 296 to exercise the app's network guard. That is a test fixture, not Hedera, and proves no live account control, oracle health, native-value conversion or payment. Local node logs contain public disposable test accounts; they are never live credentials or input to the source package.
+The journey uses the shipped deployment bytecode, real local contract calls, a disposable simulated MetaMask interface and a wallet-free second browser. It verifies deployment, wrong-network/unauthorized/rejected creation, pending reload recovery, invoice reads, nonexistent IDs, expiry, quote windows, exact upward rounding, invalid/stale/unavailable oracle reads and failed-read clearing. Its local EVM deliberately advertises chain 296 to exercise the app's network guard. That is a test fixture, not Hedera, and proves no live account control, oracle health, native-value conversion or payment. Local node logs contain public disposable test accounts; they are never live credentials or input to the source package.
 
 ## Troubleshooting
 
