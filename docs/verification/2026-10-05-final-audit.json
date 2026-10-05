@@ -1,7 +1,6 @@
 {
   "auditDate": "2026-10-05",
-  "status": "incomplete",
-  "reason": "Committed local and public candidate/default gates remain pending; current-app real MetaMask checkout passed.",
+  "status": "passed",
   "preAuditPublicDefault": {
     "gate": {
       "source": "MrSufferer/scaffold-hbar",
@@ -179,8 +178,8 @@
     }
   },
   "sourceScan": {
-    "sourceCommit": "efa23ae5a6fe53bc0a2ee5154422cf23f58940e8",
-    "trackedFilesScanned": 96,
+    "sourceCommit": "77ad38ce41e4233854457a57b19d2f6b63871b1c",
+    "trackedFilesScanned": 101,
     "rules": [
       "private-key-block",
       "literal-signing-key",
@@ -188,7 +187,7 @@
       "aws-key"
     ],
     "findings": [],
-    "scope": "Tracked HEAD snapshot; no secret values printed. Pattern scan and source review, not a comprehensive security audit."
+    "scope": "Tracked committed snapshot; no secret values printed. Pattern scan and source review, not a comprehensive security audit."
   },
   "liveEvidence": {
     "status": "passed",
@@ -206,5 +205,532 @@
       "npm run build"
     ],
     "tests": 39
-  }
+  },
+  "localCandidate": {
+    "gate": {
+      "source": "MrSufferer/scaffold-hbar",
+      "requestedRef": "HEAD",
+      "sourceCommit": "77ad38ce41e4233854457a57b19d2f6b63871b1c",
+      "mode": "local-candidate",
+      "node": "v24.10.0",
+      "npm": "11.6.1",
+      "cli": "0.4.1",
+      "date": "2026-10-05T05:03:32.276Z",
+      "status": "passed",
+      "stages": [
+        {
+          "name": "runtime",
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "export-source",
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "source-manifest-and-packaging",
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "published-generation",
+          "status": "passed",
+          "command": [
+            "npm",
+            "create",
+            "scaffold-hbar@latest",
+            "--",
+            "generated",
+            "--template",
+            "MrSufferer/scaffold-hbar",
+            "--frontend",
+            "nextjs-app",
+            "--solidity-framework",
+            "hardhat",
+            "--package-manager",
+            "npm",
+            "--network",
+            "testnet",
+            "--skip-install",
+            "--skip-hedera-skills",
+            "--yes"
+          ],
+          "error": ""
+        },
+        {
+          "name": "generated-artifacts",
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "generated-checks",
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "production-boot",
+          "status": "passed",
+          "command": [
+            "npm",
+            "run",
+            "start",
+            "--",
+            "--hostname",
+            "127.0.0.1",
+            "--port",
+            "49994"
+          ],
+          "error": ""
+        },
+        {
+          "name": "HTTP /",
+          "status": "passed"
+        },
+        {
+          "name": "HTTP /setup",
+          "status": "passed"
+        },
+        {
+          "name": "HTTP /merchant",
+          "status": "passed"
+        },
+        {
+          "name": "HTTP /deploy",
+          "status": "passed"
+        },
+        {
+          "name": "HTTP /invoice/296/0x1111111111111111111111111111111111111111/1",
+          "status": "passed"
+        },
+        {
+          "name": "generated-invoice-journey",
+          "status": "passed",
+          "command": [
+            "npm exec playwright -- install chromium",
+            "npm run test:journey"
+          ],
+          "error": ""
+        }
+      ]
+    },
+    "generatedChecks": {
+      "source": "MrSufferer/scaffold-hbar",
+      "requestedRef": "HEAD",
+      "sourceCommit": "77ad38ce41e4233854457a57b19d2f6b63871b1c",
+      "mode": "local-candidate",
+      "node": "v24.10.0",
+      "npm": "11.6.1",
+      "cli": "0.4.1",
+      "date": "2026-10-05T05:03:34.166Z",
+      "status": "passed",
+      "stages": [
+        {
+          "name": "install",
+          "command": "npm",
+          "args": ["ci"],
+          "status": "passed",
+          "log": "/tmp/hbar-invoices-local/install.log",
+          "error": ""
+        },
+        {
+          "name": "format",
+          "command": "npm",
+          "args": ["run", "format"],
+          "status": "passed",
+          "log": "/tmp/hbar-invoices-local/format.log",
+          "error": ""
+        },
+        {
+          "name": "typecheck",
+          "command": "npm",
+          "args": ["run", "check-types"],
+          "status": "passed",
+          "log": "/tmp/hbar-invoices-local/typecheck.log",
+          "error": ""
+        },
+        {
+          "name": "test",
+          "command": "npm",
+          "args": ["test"],
+          "status": "passed",
+          "log": "/tmp/hbar-invoices-local/test.log",
+          "error": ""
+        },
+        {
+          "name": "lint",
+          "command": "npm",
+          "args": ["run", "lint"],
+          "status": "passed",
+          "log": "/tmp/hbar-invoices-local/lint.log",
+          "error": ""
+        },
+        {
+          "name": "build",
+          "command": "npm",
+          "args": ["run", "build"],
+          "status": "passed",
+          "log": "/tmp/hbar-invoices-local/build.log",
+          "error": ""
+        }
+      ],
+      "sourceManifestRequired": false
+    }
+  },
+  "publicCandidate": {
+    "gate": {
+      "source": "MrSufferer/scaffold-hbar",
+      "requestedRef": "77ad38ce41e4233854457a57b19d2f6b63871b1c",
+      "sourceCommit": "77ad38ce41e4233854457a57b19d2f6b63871b1c",
+      "mode": "public-candidate",
+      "node": "v24.10.0",
+      "npm": "11.6.1",
+      "cli": "0.4.1",
+      "date": "2026-10-05T05:05:11.045Z",
+      "status": "passed",
+      "stages": [
+        {
+          "name": "runtime",
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "export-source",
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "source-manifest-and-packaging",
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "published-generation",
+          "status": "passed",
+          "command": [
+            "npm",
+            "create",
+            "scaffold-hbar@latest",
+            "--",
+            "generated",
+            "--template",
+            "MrSufferer/scaffold-hbar#77ad38ce41e4233854457a57b19d2f6b63871b1c",
+            "--frontend",
+            "nextjs-app",
+            "--solidity-framework",
+            "hardhat",
+            "--package-manager",
+            "npm",
+            "--network",
+            "testnet",
+            "--skip-install",
+            "--skip-hedera-skills",
+            "--yes"
+          ],
+          "error": ""
+        },
+        {
+          "name": "generated-artifacts",
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "generated-checks",
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "production-boot",
+          "status": "passed",
+          "command": [
+            "npm",
+            "run",
+            "start",
+            "--",
+            "--hostname",
+            "127.0.0.1",
+            "--port",
+            "50131"
+          ],
+          "error": ""
+        },
+        {
+          "name": "HTTP /",
+          "status": "passed"
+        },
+        {
+          "name": "HTTP /setup",
+          "status": "passed"
+        },
+        {
+          "name": "HTTP /merchant",
+          "status": "passed"
+        },
+        {
+          "name": "HTTP /deploy",
+          "status": "passed"
+        },
+        {
+          "name": "HTTP /invoice/296/0x1111111111111111111111111111111111111111/1",
+          "status": "passed"
+        },
+        {
+          "name": "generated-invoice-journey",
+          "status": "passed",
+          "command": [
+            "npm exec playwright -- install chromium",
+            "npm run test:journey"
+          ],
+          "error": ""
+        }
+      ]
+    },
+    "generatedChecks": {
+      "source": "MrSufferer/scaffold-hbar",
+      "requestedRef": "77ad38ce41e4233854457a57b19d2f6b63871b1c",
+      "sourceCommit": "77ad38ce41e4233854457a57b19d2f6b63871b1c",
+      "mode": "public-candidate",
+      "node": "v24.10.0",
+      "npm": "11.6.1",
+      "cli": "0.4.1",
+      "date": "2026-10-05T05:05:16.817Z",
+      "status": "passed",
+      "stages": [
+        {
+          "name": "install",
+          "command": "npm",
+          "args": ["ci"],
+          "status": "passed",
+          "log": "/tmp/hbar-invoices-candidate/install.log",
+          "error": ""
+        },
+        {
+          "name": "format",
+          "command": "npm",
+          "args": ["run", "format"],
+          "status": "passed",
+          "log": "/tmp/hbar-invoices-candidate/format.log",
+          "error": ""
+        },
+        {
+          "name": "typecheck",
+          "command": "npm",
+          "args": ["run", "check-types"],
+          "status": "passed",
+          "log": "/tmp/hbar-invoices-candidate/typecheck.log",
+          "error": ""
+        },
+        {
+          "name": "test",
+          "command": "npm",
+          "args": ["test"],
+          "status": "passed",
+          "log": "/tmp/hbar-invoices-candidate/test.log",
+          "error": ""
+        },
+        {
+          "name": "lint",
+          "command": "npm",
+          "args": ["run", "lint"],
+          "status": "passed",
+          "log": "/tmp/hbar-invoices-candidate/lint.log",
+          "error": ""
+        },
+        {
+          "name": "build",
+          "command": "npm",
+          "args": ["run", "build"],
+          "status": "passed",
+          "log": "/tmp/hbar-invoices-candidate/build.log",
+          "error": ""
+        }
+      ],
+      "sourceManifestRequired": false
+    }
+  },
+  "publicDefault": {
+    "gate": {
+      "source": "MrSufferer/scaffold-hbar",
+      "requestedRef": "public-default",
+      "sourceCommit": "77ad38ce41e4233854457a57b19d2f6b63871b1c",
+      "mode": "public-default",
+      "node": "v24.10.0",
+      "npm": "11.6.1",
+      "cli": "0.4.1",
+      "date": "2026-10-05T05:05:11.045Z",
+      "status": "passed",
+      "stages": [
+        {
+          "name": "runtime",
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "export-source",
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "source-manifest-and-packaging",
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "published-generation",
+          "status": "passed",
+          "command": [
+            "npm",
+            "create",
+            "scaffold-hbar@latest",
+            "--",
+            "generated",
+            "--template",
+            "MrSufferer/scaffold-hbar",
+            "--frontend",
+            "nextjs-app",
+            "--solidity-framework",
+            "hardhat",
+            "--package-manager",
+            "npm",
+            "--network",
+            "testnet",
+            "--skip-install",
+            "--skip-hedera-skills",
+            "--yes"
+          ],
+          "error": ""
+        },
+        {
+          "name": "generated-artifacts",
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "generated-checks",
+          "status": "passed",
+          "error": ""
+        },
+        {
+          "name": "production-boot",
+          "status": "passed",
+          "command": [
+            "npm",
+            "run",
+            "start",
+            "--",
+            "--hostname",
+            "127.0.0.1",
+            "--port",
+            "50135"
+          ],
+          "error": ""
+        },
+        {
+          "name": "HTTP /",
+          "status": "passed"
+        },
+        {
+          "name": "HTTP /setup",
+          "status": "passed"
+        },
+        {
+          "name": "HTTP /merchant",
+          "status": "passed"
+        },
+        {
+          "name": "HTTP /deploy",
+          "status": "passed"
+        },
+        {
+          "name": "HTTP /invoice/296/0x1111111111111111111111111111111111111111/1",
+          "status": "passed"
+        },
+        {
+          "name": "generated-invoice-journey",
+          "status": "passed",
+          "command": [
+            "npm exec playwright -- install chromium",
+            "npm run test:journey"
+          ],
+          "error": ""
+        },
+        {
+          "name": "default-ref-stability",
+          "status": "passed",
+          "error": ""
+        }
+      ]
+    },
+    "generatedChecks": {
+      "source": "MrSufferer/scaffold-hbar",
+      "requestedRef": "public-default",
+      "sourceCommit": "77ad38ce41e4233854457a57b19d2f6b63871b1c",
+      "mode": "public-default",
+      "node": "v24.10.0",
+      "npm": "11.6.1",
+      "cli": "0.4.1",
+      "date": "2026-10-05T05:05:16.803Z",
+      "status": "passed",
+      "stages": [
+        {
+          "name": "install",
+          "command": "npm",
+          "args": ["ci"],
+          "status": "passed",
+          "log": "/tmp/hbar-invoices-audit-final-default/install.log",
+          "error": ""
+        },
+        {
+          "name": "format",
+          "command": "npm",
+          "args": ["run", "format"],
+          "status": "passed",
+          "log": "/tmp/hbar-invoices-audit-final-default/format.log",
+          "error": ""
+        },
+        {
+          "name": "typecheck",
+          "command": "npm",
+          "args": ["run", "check-types"],
+          "status": "passed",
+          "log": "/tmp/hbar-invoices-audit-final-default/typecheck.log",
+          "error": ""
+        },
+        {
+          "name": "test",
+          "command": "npm",
+          "args": ["test"],
+          "status": "passed",
+          "log": "/tmp/hbar-invoices-audit-final-default/test.log",
+          "error": ""
+        },
+        {
+          "name": "lint",
+          "command": "npm",
+          "args": ["run", "lint"],
+          "status": "passed",
+          "log": "/tmp/hbar-invoices-audit-final-default/lint.log",
+          "error": ""
+        },
+        {
+          "name": "build",
+          "command": "npm",
+          "args": ["run", "build"],
+          "status": "passed",
+          "log": "/tmp/hbar-invoices-audit-final-default/build.log",
+          "error": ""
+        }
+      ],
+      "sourceManifestRequired": false
+    }
+  },
+  "auditedContentCommit": "77ad38ce41e4233854457a57b19d2f6b63871b1c",
+  "reviews": {
+    "fixedPoint": "efa23ae5a6fe53bc0a2ee5154422cf23f58940e8",
+    "reviewedCommit": "77ad38ce41e4233854457a57b19d2f6b63871b1c",
+    "standardsFindings": 0,
+    "specFindings": 0
+  },
+  "deliveryRevision": "Subsequent evidence-only delivery revision receives all three gates before issue 18 closure. Exact final commit, dated stage summaries and tool versions are recorded in the issue resolution.",
+  "finalResolution": "https://github.com/MrSufferer/scaffold-hbar/issues/18"
 }
