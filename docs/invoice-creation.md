@@ -59,7 +59,7 @@ Only the merchant is authorized. The contract distinguishes unauthorized callers
 
 ## Contract boundary
 
-`Invoices(address merchant, address feed)` fixes `merchant`, `recipient` (equal to merchant) and `feed`. `createInvoice(uint256 usdCents, uint64 expiresAt)` returns a sequential ID beginning at 1 and emits `InvoiceCreated(id, usdCents, expiresAt)`. `getInvoice(id)` returns cents, expiry and state (`0` Open, `1` Expired, `2` Cancelled). `cancelInvoice(id)` records cancellation and emits `InvoiceCancelled(id)`. Errors distinguish `InvalidIdentity`, `MerchantOnly`, `InvalidAmount`, `InvalidExpiry` `InvoiceNotFound(id)` and `InvoiceAlreadyCancelled(id)`. There are no identity setters, personal-data fields, payable methods or payment success events in this slice.
+`Invoices(address merchant, address feed)` fixes `merchant`, `recipient` (equal to merchant) and `feed`. `createInvoice(uint256 usdCents, uint64 expiresAt)` returns a sequential ID beginning at 1 and emits `InvoiceCreated(id, usdCents, expiresAt)`. `getInvoice(id)` returns cents, expiry and state (`0` Open, `1` Expired, `2` Cancelled). `cancelInvoice(id)` records cancellation and emits `InvoiceCancelled(id)`. Errors distinguish `InvalidIdentity`, `MerchantOnly`, `InvalidAmount`, `InvalidExpiry`, `InvoiceNotFound(id)` and `InvoiceAlreadyCancelled(id)`. There are no identity setters, personal-data fields, payable methods or payment success events in this slice.
 
 ## Verify the generated journey
 
