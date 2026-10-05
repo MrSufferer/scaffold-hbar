@@ -52,6 +52,12 @@ export function parseCents(input: string): bigint {
     );
   return cents;
 }
+export function formatExpiry(seconds: string) {
+  const value = BigInt(seconds);
+  if (value > 8_640_000_000_000n)
+    return `${seconds} Unix seconds (outside the UTC date display range)`;
+  return new Date(Number(value) * 1000).toISOString();
+}
 export function formatUsd(cents: string) {
   const value = BigInt(cents);
   return `$${(value / 100n).toLocaleString("en-US")}.${(value % 100n).toString().padStart(2, "0")} USD`;

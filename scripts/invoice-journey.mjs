@@ -14,9 +14,13 @@ import net from "node:net";
 import https from "node:https";
 import os from "node:os";
 import path from "node:path";
+import { createRequire } from "node:module";
 import { chromium, expect } from "@playwright/test";
 import { cleanEnvironment, stopProcess } from "./verification.mjs";
 const root = path.resolve(import.meta.dirname, "..");
+const { Interface } = createRequire(
+  new URL("../packages/nextjs/package.json", import.meta.url),
+)("ethers");
 const tmp = mkdtempSync(path.join(os.tmpdir(), "invoice-journey-"));
 const logDir = path.resolve(process.env.INVOICE_JOURNEY_LOG_DIR || tmp);
 /** @type {import('node:child_process').ChildProcess[]} */
@@ -344,6 +348,26 @@ try {
     "0x59bc155eb6c6c415fe43255af66ecf0523c92b4a",
   );
   assert.equal(view.usdCents, "125");
+  await rpc("eth_sendTransaction", [
+    {
+      from: accounts[0],
+      to: contract,
+      data: new Interface(artifact.abi).encodeFunctionData("createInvoice", [
+        1n,
+        18446744073709551615n,
+      ]),
+    },
+  ]);
+  await publicPage.goto(`${base}/invoice/296/${contract}/2`);
+  await expect(
+    publicPage.getByText(
+      "18446744073709551615 Unix seconds (outside the UTC date display range)",
+      { exact: true },
+    ),
+  ).toBeVisible();
+  await expect(
+    publicPage.getByText("$0.01 USD", { exact: true }),
+  ).toBeVisible();
   await publicPage.goto(`${base}/invoice/296/${contract}/999`);
   await expect(
     publicPage

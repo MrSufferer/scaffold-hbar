@@ -5,6 +5,7 @@ import {
   invoicePath,
   parseCents,
   formatUsd,
+  formatExpiry,
 } from "../lib/invoice.ts";
 import { merchantSigner } from "../lib/wallet.ts";
 const address = "0x1111111111111111111111111111111111111111";
@@ -57,4 +58,12 @@ test("wrong wallet network is rejected before requesting account authorization",
     /Hedera testnet/,
   );
   assert.deepEqual(methods, ["eth_chainId"]);
+});
+
+test("invoice expiry remains inspectable beyond JavaScript's date range", () => {
+  assert.equal(formatExpiry("1791158400"), "2026-10-05T00:00:00.000Z");
+  assert.equal(
+    formatExpiry("18446744073709551615"),
+    "18446744073709551615 Unix seconds (outside the UTC date display range)",
+  );
 });

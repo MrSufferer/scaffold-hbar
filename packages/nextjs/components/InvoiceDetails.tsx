@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import {
+  formatExpiry,
   formatUsd,
   invoicePath,
   type InvoiceIdentity,
@@ -51,7 +52,7 @@ export default function InvoiceDetails({
             <dt>USD amount</dt>
             <dd className="amount">{formatUsd(view.usdCents)}</dd>
             <dt>Immutable expiry (UTC)</dt>
-            <dd>{new Date(Number(view.expiresAt) * 1000).toISOString()}</dd>
+            <dd>{formatExpiry(view.expiresAt)}</dd>
             <dt>Merchant</dt>
             <dd className="code">{view.merchant}</dd>
             <dt>Recipient</dt>
