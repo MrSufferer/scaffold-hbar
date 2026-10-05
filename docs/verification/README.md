@@ -83,3 +83,13 @@ Clean generated projects passed install, formatting, typechecks, full contract/f
 The public default-ref run resolved `a3b1cfd2746f64c7bac976ca1532d336aebd3df7` and failed at generated-artifacts because the guide lacks payment failure actions. Later stages did not run. Candidate success does not establish default-branch availability or final release eligibility. The published candidate branch is `implement/payment-recovery`.
 
 These results establish source eligibility and generated operability using simulated MetaMask, a disposable local EVM and explicit test conversion. Real Hedera deployment, oracle health and settlement remain unverified. Reports include source commits, dates, resolved tool versions, exact commands and per-stage results.
+
+## October 5, 2026 payment failure actions and fresh approval
+
+[Recorded results](2026-10-05-payment-failures.json) cover `e15e9c5` for [Explain payment failures and require a fresh approval](https://github.com/MrSufferer/scaffold-hbar/issues/16), incorporating concurrent recovery changes. Local and public candidate generation passed every stage with published CLI 0.4.1, Node 24.10.0 and npm 11.6.1. Standards and Spec reviews found no unresolved findings.
+
+Clean generated projects passed install, formatting, typechecks, 38 tests, lint, build, production boot, core routes and the browser journey. The journey covers insufficient funds, wallet rejection, account/network events, changes during estimation and validation, same-price changed rounds, confirmed reverts, and explicit fresh approval with exact submitted amount and round. Developer and agent failure guidance passed packaging checks.
+
+The public candidate is `implement/payment-failures`. Public default generation resolved `a3b1cfd2746f64c7bac976ca1532d336aebd3df7` and failed at generated-artifacts because its agent guide lacks payment failure actions; later stages did not run. Candidate success does not establish default-branch availability. Public reads used the existing GitHub login after anonymous API rate limiting.
+
+Reports record source commits, dates, tool versions, commands and per-stage results. These are source eligibility and generated operability results using simulated MetaMask, a disposable local EVM and explicit relay conversion. Real Hedera deployment, oracle health and settlement remain unverified.
