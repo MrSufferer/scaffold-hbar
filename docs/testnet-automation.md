@@ -33,9 +33,21 @@ Run in a fresh temporary parent directory. Record the exact exported commit. In 
 Configure only public values in the generated frontend: `NEXT_PUBLIC_HEDERA_RPC_URL` and `NEXT_PUBLIC_INVOICE_CONTRACT` from the CLI report. Rebuild and start that generated production app. The browser runner defaults to `http://localhost:3000`; set `TESTNET_APP_URL` if needed. Keep signing keys in the original checkout's ignored `.env`, then run there:
 
 ```sh
-npm run test:testnet:metamask
+TESTNET_SOURCE_COMMIT=YOUR_EXPORTED_COMMIT npm run test:testnet:metamask
 ```
 
-The runner refuses a failed CLI report. It imports the authorized accounts into isolated real MetaMask profiles, creates an invoice in the generated app, reviews the exact displayed quote and separate estimated fee, explicitly confirms payment, verifies the transaction independently and rechecks the receipt after reload. It creates and cancels a second invoice and checks its payer view. Browser evidence defaults to `/tmp/hbar-invoices-metamask.json`; `METAMASK_REPORT` selects another report. A failed browser run is incomplete evidence. Inspect saved original transaction references and wallet activity before any rerun; do not infer a safe retry from profile deletion.
+The runner refuses a failed CLI report. It uses visible browser windows with fully automated wallet approvals. It imports the authorized accounts into isolated real MetaMask profiles, creates an invoice in the generated app, reviews the exact displayed quote and separate estimated fee, explicitly confirms payment, verifies the transaction independently and rechecks the receipt after reload. It creates and cancels a second invoice and checks its payer view. Browser evidence defaults to `/tmp/hbar-invoices-metamask.json`; `METAMASK_REPORT` selects another report. A failed browser run is incomplete evidence. Inspect saved original transaction references and wallet activity before any rerun; do not infer a safe retry from profile deletion.
+
+If the original creation succeeded but evidence collection stopped before payment, preserve its report and reconcile the public hash. The runner supports one narrow continuation:
+
+```sh
+TESTNET_SOURCE_COMMIT=YOUR_EXPORTED_COMMIT TESTNET_RESUME_CREATION_HASH=ORIGINAL_CREATION_HASH npm run test:testnet:metamask
+```
+
+It requires the saved original merchant intent, matching source and contract, no payer approval/payment, an authoritative successful creation receipt from the merchant, and a still-open $1.25 invoice. It continues that invoice without signing another creation. A pending or unknown payment cannot use this continuation. Public Mirror results locate creation/cancellation hashes; successful relay receipts and matching original-contract events verify them.
 
 Keep the existing local stale-feed/expired-quote example identified as local. CLI testnet evidence proves native transport separately from the MetaMask journey. Neither can replace source packaging, clean generated operability or public default-ref verification. The live ticket remains open while any gate is missing.
+
+## Observed CLI testnet evidence, October 5, 2026
+
+The [CLI record](verification/2026-10-05-testnet-cli.json) confirms deployment `0x3467c4A13171B1216691D37B2C3E69d05133E9e8` and [settlement](https://hashscan.io/testnet/transaction/0x27761e9beb83a7bc6795c3f4dfe2f580f1eb77748249d50a8d8b528025f36bfd) of invoice 1 for $1.25 at round `18446744073709596752`. The exact delivered amount was 1,199,269,463 tinybars (11.99269463 HBAR), independently checked against the merchant balance delta and receipt-block state at block 41373342. [Invoice 2 cancellation](https://hashscan.io/testnet/transaction/0x4028f4abc57a9d6ea584f2a7d20a89b568fde03fe438f27e5349aae5ee2f308d) confirmed at block 41373348. These are CLI transactions; real MetaMask browser evidence is recorded separately and remains incomplete until its gate passes.

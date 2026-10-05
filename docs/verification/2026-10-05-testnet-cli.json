@@ -1,0 +1,65 @@
+{
+  "date": "2026-10-05T03:42:23.481Z",
+  "sourceCommit": "3c8fe60cf2aefd0f45594d5b589863556bb2a787",
+  "kind": "real-testnet-cli",
+  "chainId": 296,
+  "merchant": "0xeD37FD0d6F0f69236E7472B36796e133D20EcC32",
+  "payer": "0x00F5089ed5A3192cE8f8Ceb6a9c72ae04CC5F794",
+  "feed": "0x59bC155EB6c6C415fE43255aF66EcF0523c92B4a",
+  "node": "v24.10.0",
+  "transactions": [
+    {
+      "action": "create payment invoice",
+      "hash": "0x35b936d427e9d6e6a4e5b8289d7e1659f4b8f5e97e12b92fe9d1668632c88c4f",
+      "url": "https://hashscan.io/testnet/transaction/0x35b936d427e9d6e6a4e5b8289d7e1659f4b8f5e97e12b92fe9d1668632c88c4f",
+      "status": "confirmed",
+      "block": 41373339
+    },
+    {
+      "action": "settle exact quote",
+      "hash": "0x27761e9beb83a7bc6795c3f4dfe2f580f1eb77748249d50a8d8b528025f36bfd",
+      "url": "https://hashscan.io/testnet/transaction/0x27761e9beb83a7bc6795c3f4dfe2f580f1eb77748249d50a8d8b528025f36bfd",
+      "status": "confirmed",
+      "block": 41373342
+    },
+    {
+      "action": "create cancellation invoice",
+      "hash": "0x7e6bcbb91140f56ed1277265726f6a74e767e33d2690e9d29f8d4c4b117268df",
+      "url": "https://hashscan.io/testnet/transaction/0x7e6bcbb91140f56ed1277265726f6a74e767e33d2690e9d29f8d4c4b117268df",
+      "status": "confirmed",
+      "block": 41373346
+    },
+    {
+      "action": "cancel unpaid invoice",
+      "hash": "0x4028f4abc57a9d6ea584f2a7d20a89b568fde03fe438f27e5349aae5ee2f308d",
+      "url": "https://hashscan.io/testnet/transaction/0x4028f4abc57a9d6ea584f2a7d20a89b568fde03fe438f27e5349aae5ee2f308d",
+      "status": "confirmed",
+      "block": 41373348
+    }
+  ],
+  "status": "passed",
+  "feedRound": [
+    "18446744073709596752",
+    "10423012",
+    "1791171058",
+    "1791171070",
+    "18446744073709596752"
+  ],
+  "feedDecimals": "8",
+  "deploymentHash": "0x4a5b6c6aa5782c99b6c6037f636a4504d2dcedb92d34dd79e9e3b52202d15e4d",
+  "contract": "0x3467c4A13171B1216691D37B2C3E69d05133E9e8",
+  "quote": [
+    "1",
+    "18446744073709596752",
+    "1199269463",
+    "1791171900",
+    "5970572",
+    "1791171070",
+    "10423012",
+    "8"
+  ],
+  "merchantDeltaWeibars": "11992694630000000000",
+  "hardhat": "2.22.19",
+  "npm": "11.6.1",
+  "sourceNote": "Compiled contract from 3c8fe60; concurrent frontend recovery commits do not change Solidity. CLI runner was uncommitted at execution, subsequently committed in 7417838."
+}

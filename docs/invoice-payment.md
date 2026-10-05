@@ -32,7 +32,7 @@ Run `npm run test -w @sh/hardhat -- test/Settlement.test.ts`, `npm run check-typ
 
 The clean generated production browser journey estimates a fee, rejects wrong network and wallet rejection, rejects a same-price new round without submitting, pays a fractional-tinybar quote once, recovers after reload, and verifies recipient balance change and a transaction-linked receipt. Its simulated wallet explicitly models the Hedera wire-to-EVM conversion because ordinary Hardhat does not. Contract tests verify one-tinybar mismatch, forged context, feed failure, deadline/expiry, both cancellation orderings, rejected delivery and reentrancy across invoices. The doubles require no secrets or real funds.
 
-These checks establish deterministic source/generated behavior only. They do not establish Hedera transport semantics, live oracle health or a real MetaMask settlement. A later real Hedera testnet journey must verify the actual payer value, recipient HBAR balance delta and accepted transaction evidence before those claims can be made.
+These checks establish deterministic source/generated behavior only. They do not establish Hedera transport semantics, live oracle health or a real MetaMask settlement. The separate [authorized testnet gate](testnet-automation.md) first verified CLI settlement, exact native-value transport and recipient delivery on October 5, 2026. Real MetaMask evidence is tracked separately; an incomplete browser gate does not establish a verified wallet journey.
 
 ## Interrupted checkout recovery
 
