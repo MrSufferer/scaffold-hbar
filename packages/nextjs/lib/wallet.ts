@@ -11,7 +11,11 @@ import {
   TESTNET_FEED,
   type InvoiceIdentity,
 } from "./invoice.ts";
-export type MetaMask = Eip1193Provider & { isMetaMask?: boolean };
+export type MetaMask = Eip1193Provider & {
+  isMetaMask?: boolean;
+  on?: (event: string, listener: () => void) => void;
+  removeListener?: (event: string, listener: () => void) => void;
+};
 export type CreationAttempt = InvoiceIdentity & { transaction: string };
 export async function merchantSigner(wallet: MetaMask, expected?: string) {
   if (!wallet.isMetaMask)

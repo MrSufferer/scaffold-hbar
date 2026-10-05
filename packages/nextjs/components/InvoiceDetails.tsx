@@ -138,6 +138,7 @@ export default function InvoiceDetails({
         </>
       )}
       <PayInvoice
+        key={invoicePath(identity)}
         identity={identity}
         view={view}
         onConfirmed={() => {

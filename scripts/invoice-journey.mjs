@@ -69,8 +69,8 @@ async function ready(action) {
   );
 }
 let rpcId = 0;
-/** @param {string} method @param {unknown[]} params */
-async function rpc(method, params = []) {
+/** @param {string} method @param {unknown[]} params @param {boolean} allowRevert */
+async function rpc(method, params = [], allowRevert = false) {
   const response = await fetch(rpcUrl, {
     method: "POST",
     headers: { "content-type": "application/json" },
@@ -78,7 +78,13 @@ async function rpc(method, params = []) {
     signal: AbortSignal.timeout(10_000),
   });
   const body = await response.json();
-  if (body.error) throw new Error(body.error.message);
+  if (body.error) {
+    if (allowRevert && body.error.data?.txHash) return body.error.data.txHash;
+    throw Object.assign(new Error(body.error.message), {
+      code: body.error.code,
+      data: body.error.data,
+    });
+  }
   return body.result;
 }
 let rpcUrl = "";
@@ -102,7 +108,7 @@ try {
   rpcUrl = `http://127.0.0.1:${rpcPort}`;
   writeFileSync(
     config,
-    'module.exports = { solidity: "0.8.28", networks: { hardhat: { chainId: 296 } } };\n',
+    'module.exports = { solidity: "0.8.28", networks: { hardhat: { chainId: 296, throwOnTransactionFailures: false } } };\n',
   );
   start(
     [
@@ -246,68 +252,137 @@ try {
   let rejectRequest = false;
   let holdReceipts = false;
   let rejectPayment = false;
+  let failRecoveryRead = false;
   let paymentSubmissions = 0;
+  let insufficientBalance = false;
+  let revertPayment = false;
+  /** @type {{amount: string, round: string}[]} */
+  const sentPayments = [];
   const invoiceAbi = new Interface(artifact.abi);
   await context.exposeFunction(
     "invoiceWalletRpc",
     async (
       /** @type {{method: string, params?: unknown[]}} */ { method, params },
     ) => {
-      if (method === "eth_chainId" && wrongChain) return "0x1";
-      if (method === "eth_requestAccounts" && rejectRequest)
-        return { walletRejected: true };
-      if (method === "eth_requestAccounts" || method === "eth_accounts")
-        return [selected];
-      if (method === "eth_getTransactionReceipt" && holdReceipts) return null;
-      // Explicit test relay: Hedera converts wire weibars to EVM tinybars.
-      // Hardhat does not, so this disposable fixture models that boundary only.
-      if (method === "eth_estimateGas" || method === "eth_sendTransaction") {
-        const request =
-          /** @type {{data?: string, value?: string, to?: string, from?: string}} */ (
-            params?.[0]
-          );
-        if (
-          request?.data?.startsWith(
-            invoiceAbi.getFunction("payInvoice").selector,
-          )
-        ) {
-          const approved = invoiceAbi.decodeFunctionData(
-            "payInvoice",
-            request.data,
-          )[0];
-          assert.equal(
-            BigInt(request.value || "0"),
-            approved.amountTinybars * 10000000000n,
-          );
-          if (method === "eth_sendTransaction") {
-            if (rejectPayment) return { walletRejected: true };
-            ++paymentSubmissions;
-            assert.equal(
-              request.from?.toLowerCase(),
-              accounts[1].toLowerCase(),
+      try {
+        if (method === "eth_chainId" && wrongChain) return "0x1";
+        if (method === "eth_getBalance" && insufficientBalance) return "0x0";
+        if (method === "eth_requestAccounts" && rejectRequest)
+          return { walletRejected: true };
+        if (method === "eth_requestAccounts" || method === "eth_accounts")
+          return [selected];
+        if (method === "eth_getTransactionReceipt" && holdReceipts) return null;
+        if (method === "eth_call" && failRecoveryRead)
+          throw new Error("Recovery RPC unavailable");
+        // Explicit test relay: Hedera converts wire weibars to EVM tinybars.
+        // Hardhat does not, so this disposable fixture models that boundary only.
+        if (method === "eth_estimateGas" || method === "eth_sendTransaction") {
+          const request =
+            /** @type {{data?: string, value?: string, to?: string, from?: string}} */ (
+              params?.[0]
             );
+          if (
+            request?.data?.startsWith(
+              invoiceAbi.getFunction("payInvoice").selector,
+            )
+          ) {
+            const approved = invoiceAbi.decodeFunctionData(
+              "payInvoice",
+              request.data,
+            )[0];
+            assert.equal(
+              BigInt(request.value || "0"),
+              approved.amountTinybars * 10000000000n,
+            );
+            if (method === "eth_sendTransaction") {
+              if (rejectPayment) return { walletRejected: true };
+              ++paymentSubmissions;
+              sentPayments.push({
+                amount: approved.amountTinybars.toString(),
+                round: approved.roundId.toString(),
+              });
+              if (revertPayment) {
+                // Consensus race after validation: keep the submitted amount/round unchanged.
+                await setFeed("setRound", [
+                  12,
+                  300000000,
+                  freshTime,
+                  freshTime,
+                  12,
+                ]);
+                return rpc(
+                  method,
+                  [
+                    {
+                      ...request,
+                      value: "0x" + approved.amountTinybars.toString(16),
+                    },
+                  ],
+                  true,
+                );
+              }
+              assert.equal(
+                request.from?.toLowerCase(),
+                accounts[1].toLowerCase(),
+              );
+            }
+            return await rpc(method, [
+              {
+                ...request,
+                value: "0x" + approved.amountTinybars.toString(16),
+              },
+              ...(params?.slice(1) || []),
+            ]);
           }
-          return rpc(method, [
-            { ...request, value: "0x" + approved.amountTinybars.toString(16) },
-            ...(params?.slice(1) || []),
-          ]);
         }
+        return await rpc(method, params);
+      } catch (error) {
+        const item =
+          /** @type {{code?: number, data?: unknown, message?: string}} */ (
+            error
+          );
+        return {
+          walletRpcError: {
+            code: item.code || -32603,
+            data: item.data,
+            message: item.message || "Test RPC unavailable",
+          },
+        };
       }
-      return rpc(method, params);
     },
   );
   await context.addInitScript(() => {
     // This simulated injected wallet is confined to this disposable browser context.
+    /** @type {Map<string, Set<() => void>>} */
+    const listeners = new Map();
     Object.assign(window, {
+      invoiceWalletEvent: (/** @type {string} */ event) =>
+        listeners.get(event)?.forEach((listener) => listener()),
       ethereum: {
+        on: (
+          /** @type {string} */ event,
+          /** @type {() => void} */ listener,
+        ) => {
+          if (!listeners.has(event)) listeners.set(event, new Set());
+          listeners.get(event)?.add(listener);
+        },
+        removeListener: (
+          /** @type {string} */ event,
+          /** @type {() => void} */ listener,
+        ) => listeners.get(event)?.delete(listener),
         isMetaMask: true,
         request: async (
           /** @type {{method: string, params?: unknown[]}} */ input,
         ) => {
           const result =
-            await /** @type {Window & {invoiceWalletRpc: (input: unknown) => Promise<{walletRejected?: boolean}>}} */ (
+            await /** @type {Window & {invoiceWalletRpc: (input: unknown) => Promise<{walletRejected?: boolean, walletRpcError?: {code: number, data?: unknown, message: string}}>}} */ (
               /** @type {unknown} */ (window)
             ).invoiceWalletRpc(input);
+          if (result?.walletRpcError)
+            throw Object.assign(
+              new Error(result.walletRpcError.message),
+              result.walletRpcError,
+            );
           if (result?.walletRejected)
             throw Object.assign(new Error("User rejected the request"), {
               code: 4001,
@@ -583,6 +658,7 @@ try {
     .click();
   await expect(paymentStatus).toContainText("Switch MetaMask");
   wrongChain = false;
+  await page.getByRole("button", { name: "Refresh invoice" }).click();
   await page
     .getByRole("button", { name: "Estimate payment network fee" })
     .click();
@@ -598,6 +674,7 @@ try {
   await expect(paymentStatus).toContainText("Request rejected");
   assert.equal(paymentSubmissions, 0);
   rejectPayment = false;
+  await page.getByRole("button", { name: "Refresh invoice" }).click();
   // Same numeric price but a new round requires a new review, with no wallet submission.
   await page
     .getByRole("button", { name: "Estimate payment network fee" })
@@ -611,7 +688,7 @@ try {
   await page
     .getByRole("button", { name: "Approve exact quote and pay with MetaMask" })
     .click();
-  await expect(paymentStatus).toContainText("Payment validation failed");
+  await expect(paymentStatus).toContainText("Quote changed");
   assert.equal(paymentSubmissions, 0);
   await page.getByRole("button", { name: "Refresh invoice" }).click();
   await expect(
@@ -625,6 +702,40 @@ try {
       name: "Approve exact quote and pay with MetaMask",
     }),
   ).toBeVisible();
+  const approvedBeforeFailure = sentPayments.length;
+  revertPayment = true;
+  await page
+    .getByRole("button", { name: "Approve exact quote and pay with MetaMask" })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "Payment outcome pending" }),
+  ).toBeVisible();
+  await expect(paymentStatus).toContainText("reverted on-chain", {
+    timeout: 30_000,
+  });
+  assert.equal(sentPayments.length, approvedBeforeFailure + 1);
+  assert.deepEqual(sentPayments.at(-1), { amount: "333334", round: "11" });
+  await expect(
+    page.getByRole("heading", { name: "Confirmed payment receipt" }),
+  ).toHaveCount(0);
+  revertPayment = false;
+  await page.getByRole("button", { name: "Check payment transaction" }).click();
+  await expect(paymentStatus).toContainText("confirmed failed on-chain");
+  await expect(
+    page.getByRole("heading", { name: "Open", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", {
+      name: "Approve exact quote and pay with MetaMask",
+    }),
+  ).toHaveCount(0);
+  await page
+    .getByRole("button", { name: "Estimate payment network fee" })
+    .click();
+  await expect(
+    page.getByText("Approved oracle round", { exact: true }),
+  ).toBeVisible();
+  assert.equal(paymentSubmissions, 1);
   const merchantBefore = BigInt(
     await rpc("eth_getBalance", [accounts[0], "latest"]),
   );
@@ -647,6 +758,13 @@ try {
       name: "Approve exact quote and pay with MetaMask",
     }),
   ).toHaveCount(0);
+  selected = accounts[0];
+  await page.getByRole("button", { name: "Check payment transaction" }).click();
+  await expect(paymentStatus).toContainText("Invoice settled");
+  await expect(
+    page.getByRole("heading", { name: "Confirmed payment receipt" }),
+  ).toHaveCount(0);
+  assert.equal(paymentSubmissions, 2);
   holdReceipts = false;
   await page.getByRole("button", { name: "Check payment transaction" }).click();
   await expect(
@@ -659,7 +777,8 @@ try {
     page.getByRole("link", { name: "View confirmed transaction on HashScan" }),
   ).toHaveAttribute("href", /\/testnet\/transaction\/0x[0-9a-fA-F]{64}$/);
   await expect(page.getByText(/333334 tinybars/)).toBeVisible();
-  assert.equal(paymentSubmissions, 1);
+  assert.equal(paymentSubmissions, 2);
+  assert.deepEqual(sentPayments.at(-1), { amount: "333334", round: "12" });
   assert.equal(
     BigInt(await rpc("eth_getBalance", [accounts[0], "latest"])) -
       merchantBefore,
@@ -680,6 +799,127 @@ try {
   await expect(
     publicPage.getByRole("button", { name: /approve|estimate payment/i }),
   ).toHaveCount(0);
+  // A real mined revert stays blocked while authoritative reads are unavailable.
+  const savedPayment = await page.evaluate(() => {
+    const key = Object.keys(localStorage).find((key) =>
+      key.includes("hbar-invoices:payment:"),
+    );
+    if (!key) throw new Error("Missing saved payment");
+    const saved = localStorage.getItem(key);
+    if (!saved) throw new Error("Missing saved payment context");
+    return JSON.parse(saved);
+  });
+  await rpc("eth_sendTransaction", [
+    {
+      from: accounts[0],
+      to: contract,
+      data: invoiceAbi.encodeFunctionData("createInvoice", [
+        1n,
+        18446744073709551615n,
+      ]),
+    },
+  ]);
+  const recoveryLocator = `/invoice/296/${contract}/3`;
+  const failedHash = await rpc("eth_sendTransaction", [
+    {
+      from: accounts[1],
+      to: contract,
+      gas: "0x186a0",
+      data: invoiceAbi.encodeFunctionData("payInvoice", [
+        { ...savedPayment.quote, invoiceId: "3" },
+      ]),
+      value: "0x0",
+    },
+  ]);
+  assert.equal(
+    (await rpc("eth_getTransactionReceipt", [failedHash])).status,
+    "0x0",
+  );
+  await page.evaluate(
+    ({ saved, key, hash }) => {
+      localStorage.setItem(
+        key,
+        JSON.stringify({
+          ...saved,
+          invoiceId: "3",
+          quote: { ...saved.quote, invoiceId: "3" },
+          transaction: hash,
+        }),
+      );
+    },
+    {
+      saved: savedPayment,
+      key: `hbar-invoices:payment:v1:${recoveryLocator}`,
+      hash: failedHash,
+    },
+  );
+  await page.goto(base + recoveryLocator);
+  failRecoveryRead = true;
+  await page.getByRole("button", { name: "Check payment transaction" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Payment outcome pending" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Estimate payment network fee" }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "Check payment transaction" }),
+  ).toBeEnabled();
+  failRecoveryRead = false;
+  await page.getByRole("button", { name: "Check payment transaction" }).click();
+  await expect(paymentStatus).toContainText("confirmed failed on-chain");
+  await expect(
+    page.getByRole("heading", { name: "Payment outcome pending" }),
+  ).toHaveCount(0);
+  selected = accounts[1];
+  await expect(
+    page.getByRole("button", { name: "Estimate payment network fee" }),
+  ).toBeEnabled();
+
+  // Another payer settles while a hashless original intent is unresolved.
+  await page.evaluate(
+    ({ saved, key }) => {
+      localStorage.setItem(
+        key,
+        JSON.stringify({
+          ...saved,
+          invoiceId: "3",
+          quote: { ...saved.quote, invoiceId: "3" },
+          transaction: null,
+        }),
+      );
+    },
+    { saved: savedPayment, key: `hbar-invoices:payment:v1:${recoveryLocator}` },
+  );
+  const thirdQuote = invoiceAbi.decodeFunctionResult(
+    "getQuote",
+    await rpc("eth_call", [
+      { to: contract, data: invoiceAbi.encodeFunctionData("getQuote", [3n]) },
+      "latest",
+    ]),
+  )[0];
+  const thirdHash = await rpc("eth_sendTransaction", [
+    {
+      from: accounts[2],
+      to: contract,
+      data: invoiceAbi.encodeFunctionData("payInvoice", [thirdQuote]),
+      value: "0x" + thirdQuote.amountTinybars.toString(16),
+    },
+  ]);
+  assert.equal(
+    (await rpc("eth_getTransactionReceipt", [thirdHash])).status,
+    "0x1",
+  );
+  await page.reload();
+  await page.getByRole("button", { name: "Check payment transaction" }).click();
+  await expect(paymentStatus).toContainText("Invoice settled");
+  await expect(
+    page.getByRole("heading", { name: "Confirmed payment receipt" }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "Estimate payment network fee" }),
+  ).toHaveCount(0);
+  assert.equal(paymentSubmissions, 2);
   await publicPage.goto(`${base}/invoice/296/${contract}/999`);
   await expect(
     publicPage
@@ -700,7 +940,7 @@ try {
       ]),
     },
   ]);
-  const expiryLocator = `/invoice/296/${contract}/3`;
+  const expiryLocator = `/invoice/296/${contract}/4`;
   await rpc("evm_setNextBlockTimestamp", [Number(view.expiresAt) - 1]);
   await rpc("evm_mine");
   await publicPage.goto(base + expiryLocator);

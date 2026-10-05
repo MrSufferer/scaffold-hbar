@@ -3,6 +3,7 @@ import {
   Contract,
   Interface,
   isAddress,
+  isError,
   type TransactionReceipt,
 } from "ethers";
 import {
@@ -13,7 +14,7 @@ import {
   type InvoiceIdentity,
   type InvoiceQuote,
 } from "./invoice.ts";
-import { merchantSigner, type MetaMask } from "./wallet.ts";
+import { merchantSigner, walletMessage, type MetaMask } from "./wallet.ts";
 
 export const WEIBARS_PER_TINYBAR = 10000000000n;
 export type PreparedPayment = InvoiceIdentity & {
@@ -39,6 +40,69 @@ export function paymentValue(tinybars: string) {
     throw new Error("Invalid exact tinybar payment.");
   return BigInt(tinybars) * WEIBARS_PER_TINYBAR;
 }
+export class PaymentReverted extends Error {
+  constructor() {
+    super(
+      "Payment transaction reverted on-chain. No settlement occurred; network fees may have been charged. Refresh the invoice, estimate fees and approve a new quote only if it remains payable.",
+    );
+  }
+}
+export function paymentFailureMessage(error: unknown): string {
+  const item = error as {
+    code?: string | number;
+    data?: string;
+    revert?: { name?: string };
+    info?: { error?: { data?: string } };
+  } | null;
+  let name = item?.revert?.name;
+  if (!name) {
+    try {
+      const data = item?.data || item?.info?.error?.data;
+      if (typeof data === "string")
+        name = new Interface(artifact.abi).parseError(data)?.name;
+    } catch {
+      /* Unrecognized RPC data is not evidence of an on-chain failure. */
+    }
+  }
+  switch (name) {
+    case "QuoteChanged":
+      return "Quote changed: the oracle round or quote context no longer matches your review. Refresh the invoice, estimate fees and approve a new quote.";
+    case "QuoteExpired":
+      return "Quote expired. Refresh the invoice, estimate fees and approve a new quote.";
+    case "StalePrice":
+      return "Reference price is older than 24 hours. Wait for a feed update, then refresh and review a new quote.";
+    case "InvalidPrice":
+    case "IncompleteRound":
+    case "InvalidPriceTimestamp":
+      return "The feed returned an invalid or incomplete reference price. Wait for valid feed data, then refresh and review a new quote.";
+    case "FeedUnavailable":
+      return "Feed read unavailable. Check the testnet RPC and fixed feed; refresh after reads recover. Payment is blocked.";
+    case "InvoiceIneligible":
+    case "InvoiceAlreadyCancelled":
+    case "InvoiceAlreadySettled":
+      return "Invoice is cancelled, expired or already settled. Refresh to check its final state; ask the merchant for a new invoice if needed.";
+    case "RecipientDeliveryFailed":
+      return "Recipient delivery failed. Ask the merchant to check recipient payment acceptance, then refresh before a new review.";
+    case "UnsupportedFeedDecimals":
+    case "QuoteAmountOutOfRange":
+      return "Payment quote cannot be represented safely. Verify the fixed feed/deployment or ask the merchant for a smaller invoice.";
+  }
+  if (item?.code === 4001 || isError(error, "ACTION_REJECTED"))
+    return "Request rejected in MetaMask before submission. No payment was sent. Refresh the invoice, estimate fees and approve a new quote when ready.";
+  if (isError(error, "INSUFFICIENT_FUNDS"))
+    return "Insufficient test HBAR for invoice payment and network fees. Fund the connected payer, then refresh, estimate fees and approve a new quote.";
+  if (isError(error, "CALL_EXCEPTION"))
+    return "Payment validation failed before submission. Check invoice eligibility, testnet RPC and feed; refresh and review a new quote.";
+  return walletMessage(error);
+}
+export function paymentNotSubmitted(error: unknown) {
+  const item = error as { code?: string | number } | null;
+  return (
+    item?.code === 4001 ||
+    isError(error, "ACTION_REJECTED") ||
+    isError(error, "INSUFFICIENT_FUNDS")
+  );
+}
 export function settlementEvidence(
   receipt: Pick<TransactionReceipt, "status" | "hash" | "blockNumber"> & {
     logs: ReadonlyArray<{
@@ -49,10 +113,7 @@ export function settlementEvidence(
   },
   identity: InvoiceIdentity,
 ): SettlementReceipt {
-  if (receipt.status === 0)
-    throw new Error(
-      "Payment transaction reverted. Refresh invoice before reviewing a new quote.",
-    );
+  if (receipt.status === 0) throw new PaymentReverted();
   if (receipt.status !== 1) throw new Error("Payment outcome unknown.");
   const abi = new Interface(artifact.abi);
   for (const log of receipt.logs) {
@@ -174,7 +235,7 @@ export async function preparePayment(
       paymentValue(quote.amountTinybars) + fee
     )
       throw new Error(
-        "Insufficient test HBAR for invoice payment and network fees.",
+        "Insufficient test HBAR for invoice payment and network fees. Fund the connected payer, then refresh, estimate fees and approve a new quote.",
       );
     return {
       ...identity,
@@ -225,6 +286,43 @@ export async function confirmedPayment(
     );
   return evidence;
 }
+export type PaymentRecovery =
+  | { status: "unknown" }
+  | { status: "confirmed"; receipt: SettlementReceipt }
+  | { status: "failed"; invoiceState: number }
+  | { status: "settled" };
+
+// A revert alone cannot authorize retry: read the original invoice first.
+export async function reconcilePayment(
+  provider: BrowserProvider,
+  attempt: PaymentAttempt,
+): Promise<PaymentRecovery> {
+  if ((await provider.getNetwork()).chainId !== BigInt(attempt.chainId))
+    throw new Error("Switch MetaMask to the original Hedera testnet network.");
+  const receipt = attempt.transaction
+    ? await provider.getTransactionReceipt(attempt.transaction)
+    : null;
+  if (receipt?.status === 1) {
+    const evidence = await confirmedPayment(
+      provider,
+      attempt.transaction!,
+      attempt,
+      attempt,
+    );
+    return evidence
+      ? { status: "confirmed", receipt: evidence }
+      : { status: "unknown" };
+  }
+  const contract = new Contract(attempt.contract, artifact.abi, provider);
+  const invoice = await contract.getFunction("getInvoice")(attempt.invoiceId);
+  const state = Number(invoice[2]);
+  if (![0, 1, 2, 3].includes(state))
+    throw new Error("Payment outcome unknown: unsupported invoice state.");
+  if (state === 3) return { status: "settled" };
+  if (receipt?.status === 0) return { status: "failed", invoiceState: state };
+  return { status: "unknown" };
+}
+
 export async function submitPayment(
   wallet: MetaMask,
   approved: PreparedPayment,
@@ -251,6 +349,13 @@ export async function submitPayment(
       });
     if ((await wallet.request({ method: "eth_chainId" })) !== "0x128")
       throw new Error("Switch MetaMask to Hedera testnet (296).");
+    const accounts = (await wallet.request({
+      method: "eth_accounts",
+    })) as string[];
+    if (accounts[0]?.toLowerCase() !== original.payer.toLowerCase())
+      throw new Error(
+        "Payer account changed. Refresh the invoice, estimate fees and approve a new quote.",
+      );
     checkContext(original, original.quote);
     // Persist intent before prompting: a transport error may hide a submitted hash.
     onSubmitting({ ...original, transaction: null });
@@ -259,7 +364,14 @@ export async function submitPayment(
       chainId: TESTNET_CHAIN,
     });
     onSubmitting({ ...original, transaction: tx.hash });
-    await tx.wait(1, 60_000);
+    try {
+      await tx.wait(1, 60_000);
+    } catch (error) {
+      // Only a receipt from the original hash can establish a confirmed revert.
+      const receipt = await provider.getTransactionReceipt(tx.hash);
+      if (receipt?.status === 0) throw new PaymentReverted();
+      throw error;
+    }
     const confirmed = await confirmedPayment(
       provider,
       tx.hash,

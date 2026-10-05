@@ -154,10 +154,34 @@ function checkGenerated() {
     ),
     "Generated agent guide lost cancellation recovery",
   );
+  for (const marker of [
+    "payment failure actions",
+    "wallet-event invalidation",
+    "pre-submit rejection",
+  ]) {
+    assert(
+      readFileSync(path.join(projectDir, "AGENTS.md"), "utf8").includes(marker),
+      `Generated agent guide lost ${marker}`,
+    );
+  }
   const payment = readFileSync(
     path.join(projectDir, "docs/invoice-payment.md"),
     "utf8",
   );
+  for (const marker of [
+    "Payment failure actions",
+    "Insufficient funds",
+    "Wallet rejection before submission",
+    "Confirmed on-chain revert",
+    "Changed oracle round",
+    "Expired quote",
+    "Stale or invalid feed",
+  ]) {
+    assert(
+      payment.includes(marker),
+      `Generated payment failure guide lost ${marker}`,
+    );
+  }
   for (const marker of [
     "Estimate payment network fee",
     "Approve exact quote and pay with MetaMask",

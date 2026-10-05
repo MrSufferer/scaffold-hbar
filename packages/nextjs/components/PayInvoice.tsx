@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { BrowserProvider, formatUnits, isError } from "ethers";
+import { BrowserProvider, formatUnits } from "ethers";
 import {
   formatHbar,
   formatExpiry,
@@ -9,7 +9,10 @@ import {
   type InvoiceView,
 } from "../lib/invoice";
 import {
-  confirmedPayment,
+  reconcilePayment,
+  PaymentReverted,
+  paymentFailureMessage,
+  paymentNotSubmitted,
   parsePaymentAttempt,
   preparePayment,
   submitPayment,
@@ -44,6 +47,27 @@ export default function PayInvoice({
   const [message, setMessage] = useState("");
   const [now, setNow] = useState<number | null>(null);
   const inFlight = useRef(false);
+  const walletRevision = useRef(0);
+  const [failedView, setFailedView] = useState<InvoiceView | null>(null);
+  useEffect(() => {
+    const injected = (window as Window & { ethereum?: MetaMask }).ethereum;
+    function changed() {
+      walletRevision.current += 1;
+      setPrepared(null);
+      setMessage(
+        "Wallet account or network changed. Refresh the invoice, estimate fees and approve a new quote. Pending payments still require reconciliation.",
+      );
+      setFailedView(view);
+    }
+    injected?.on?.("accountsChanged", changed);
+    injected?.on?.("chainChanged", changed);
+    injected?.on?.("disconnect", changed);
+    return () => {
+      injected?.removeListener?.("accountsChanged", changed);
+      injected?.removeListener?.("chainChanged", changed);
+      injected?.removeListener?.("disconnect", changed);
+    };
+  }, [view]);
   const context =
     view?.quoteResult.status === "available"
       ? JSON.stringify(view.quoteResult.quote)
@@ -52,6 +76,10 @@ export default function PayInvoice({
     const timer = setInterval(() => setNow(Date.now()), 1000);
     setNow(Date.now());
     try {
+      setBlocked(true);
+      setAttempt(null);
+      setReceipt(null);
+      setPrepared(null);
       const saved = localStorage.getItem(storage);
       if (saved) setAttempt(parsePaymentAttempt(saved, identity));
       setBlocked(false);
@@ -63,10 +91,16 @@ export default function PayInvoice({
     return () => clearInterval(timer);
   }, [storage, identity]);
   const active = view?.state === "Open" && context !== null;
+  const needsRefresh = view !== null && failedView === view;
+  const quoteExpired =
+    view?.quoteResult.status === "available" &&
+    now !== null &&
+    BigInt(Math.floor(now / 1000)) >= BigInt(view.quoteResult.quote.deadline);
   const ready =
     prepared &&
     reviewedView === view &&
     active &&
+    !needsRefresh &&
     JSON.stringify(prepared.quote) === context &&
     now !== null &&
     BigInt(Math.floor(now / 1000)) < BigInt(prepared.quote.deadline);
@@ -100,24 +134,28 @@ export default function PayInvoice({
       view.quoteResult.status !== "available" ||
       inFlight.current ||
       attempt ||
-      blocked
+      blocked ||
+      needsRefresh ||
+      quoteExpired
     )
       return;
     inFlight.current = true;
     setBusy(true);
     setPrepared(null);
     setMessage("");
+    const revision = walletRevision.current;
     try {
-      setPrepared(
-        await preparePayment(wallet(), identity, view.quoteResult.quote),
+      const result = await preparePayment(
+        wallet(),
+        identity,
+        view.quoteResult.quote,
       );
+      if (revision !== walletRevision.current) return;
+      setPrepared(result);
       setReviewedView(view);
     } catch (error) {
-      setMessage(
-        isError(error, "CALL_EXCEPTION")
-          ? "Payment validation failed. Refresh the invoice and review a new quote; feed or eligibility may have changed."
-          : walletMessage(error),
-      );
+      setFailedView(view);
+      setMessage(paymentFailureMessage(error));
     } finally {
       inFlight.current = false;
       setBusy(false);
@@ -139,27 +177,28 @@ export default function PayInvoice({
         }),
       );
     } catch (error) {
-      if (
-        submitted &&
-        !submittedHash &&
-        (isError(error, "ACTION_REJECTED") ||
-          isError(error, "INSUFFICIENT_FUNDS"))
-      ) {
+      if (submitted && !submittedHash && paymentNotSubmitted(error)) {
         try {
           localStorage.removeItem(storage);
           setAttempt(null);
         } catch {
           setBlocked(true);
         }
-        setMessage(walletMessage(error));
-      } else
+        setMessage(paymentFailureMessage(error));
+      } else if (error instanceof PaymentReverted) {
+        // Retain the hash until reconciliation also reads current invoice state.
+        setMessage(
+          error.message +
+            " Check payment transaction to reconcile before another attempt.",
+        );
+      } else {
         setMessage(
           submitted
-            ? "Payment outcome unknown. Check the original transaction before another attempt."
-            : isError(error, "CALL_EXCEPTION")
-              ? "Payment validation failed. Refresh the invoice and review a new quote; feed or eligibility may have changed."
-              : walletMessage(error),
+            ? "Payment outcome unknown. Check the original transaction before another attempt. No retry is permitted."
+            : paymentFailureMessage(error),
         );
+      }
+      setFailedView(view);
       setPrepared(null);
     } finally {
       inFlight.current = false;
@@ -167,38 +206,35 @@ export default function PayInvoice({
     }
   }
   async function reconcile() {
-    if (!attempt?.transaction || inFlight.current) return;
+    if (!attempt || inFlight.current) return;
     inFlight.current = true;
     setBusy(true);
     let provider: BrowserProvider | undefined;
     try {
       provider = new BrowserProvider(wallet());
-      const evidence = await confirmedPayment(
-        provider,
-        attempt.transaction,
-        identity,
-        attempt,
-      );
-      if (!evidence)
-        throw new Error(
-          "Payment outcome unknown. Transaction pending or unavailable; check again later.",
-        );
-      finish(evidence);
-    } catch (error) {
-      // A confirmed revert cannot be a receipt; refresh state before offering a new quote.
-      if (
-        error instanceof Error &&
-        error.message.startsWith("Payment transaction reverted.")
-      ) {
-        try {
-          localStorage.removeItem(storage);
-          setAttempt(null);
-        } catch {
-          setBlocked(true);
-        }
+      const outcome = await reconcilePayment(provider, attempt);
+      if (outcome.status === "confirmed") finish(outcome.receipt);
+      else if (outcome.status === "failed") {
+        localStorage.removeItem(storage);
+        setAttempt(null);
         setPrepared(null);
+        // Hide the stale review until the refreshed authoritative view arrives.
+        setReviewedView(null);
+        setFailedView(view);
+        setMessage(
+          "Payment transaction confirmed failed on-chain. No settlement occurred; network fees may have been charged. Current invoice state was checked. Refresh, estimate fees and approve a new quote only if it remains payable.",
+        );
         onConfirmed();
-      }
+      } else if (outcome.status === "settled") {
+        setMessage(
+          "Invoice settled. This attempt has no verified settlement receipt; do not pay again.",
+        );
+        onConfirmed();
+      } else
+        setMessage(
+          "Payment outcome unknown. Transaction pending or unavailable; check again later. No retry is permitted.",
+        );
+    } catch (error) {
       setMessage(walletMessage(error));
     } finally {
       provider?.destroy();
@@ -252,11 +288,23 @@ export default function PayInvoice({
               <button
                 type="button"
                 className="button secondary"
-                disabled={busy || blocked}
+                disabled={busy || blocked || needsRefresh || !!quoteExpired}
                 onClick={estimate}
               >
                 Estimate payment network fee
               </button>
+              {needsRefresh && (
+                <p>
+                  Refresh invoice to check current eligibility and quote
+                  conditions before another review.
+                </p>
+              )}
+              {quoteExpired && (
+                <p>
+                  Quote expired. Refresh the invoice, estimate fees and approve
+                  a new quote.
+                </p>
+              )}
               {ready ? (
                 <>
                   <dl>
@@ -296,6 +344,9 @@ export default function PayInvoice({
             <>
               <h4>Payment outcome pending</h4>
               <p className="code">
+                Original payer: {attempt.payer} · Network {attempt.chainId}
+              </p>
+              <p className="code">
                 {attempt.transaction ||
                   "Transaction reference unavailable. Check MetaMask activity; no retry is permitted while the outcome is unknown."}
               </p>
@@ -303,7 +354,7 @@ export default function PayInvoice({
                 Original contract: {attempt.contract} · Invoice{" "}
                 {attempt.invoiceId}
               </p>
-              {attempt.transaction && (
+              {
                 <button
                   type="button"
                   className="button secondary"
@@ -312,7 +363,7 @@ export default function PayInvoice({
                 >
                   Check payment transaction
                 </button>
-              )}
+              }
             </>
           )}
         </>
